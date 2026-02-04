@@ -76,7 +76,10 @@ export default function PerfilPage() {
 
       <main className="main-content">
         <div className="page-header">
-          <h1 className="page-title">Perfil</h1>
+          <div>
+            <h1 className="page-title">Perfil</h1>
+            <p className="page-subtitle">Gestiona tus datos, empresas y suscripción premium</p>
+          </div>
         </div>
 
         {/* User Card */}
@@ -94,8 +97,8 @@ export default function PerfilPage() {
                   fontWeight: 600,
                   padding: "4px 12px",
                   borderRadius: "20px",
-                  background: user.subscription === "pro" || user.subscription === "business" ? "#fef3c7" : "#f3f4f6",
-                  color: user.subscription === "pro" || user.subscription === "business" ? "#d97706" : "#374151",
+                  background: user.subscription === "pro" || user.subscription === "business" ? "rgba(139,92,246,0.15)" : "rgba(255,255,255,0.08)",
+                  color: "#f8fafc",
                 }}
               >
                 {currentPlan.name}

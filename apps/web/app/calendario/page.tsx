@@ -12,6 +12,8 @@ export default function CalendarioPage() {
     isLoading,
     activeCompany,
     getOffersByDay,
+    offers,
+    getUnreadMessageCount,
   } = useApp();
 
   const {
@@ -34,6 +36,30 @@ export default function CalendarioPage() {
       ),
     }));
   }, [days, getOffersByDay, activeCompany]);
+
+  const stats = useMemo(() => {
+    const month = selectedDate.getMonth();
+    const year = selectedDate.getFullYear();
+    const scopedOffers = offers.filter((o) =>
+      activeCompany ? o.companyId === activeCompany.id : true
+    );
+    const monthOffers = scopedOffers.filter((o) => {
+      const d = new Date(o.date);
+      return d.getMonth() === month && d.getFullYear() === year;
+    });
+    const todayOffers = scopedOffers.filter((o) => {
+      const d = new Date(o.date);
+      const today = new Date();
+      return d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+    });
+
+    return [
+      { label: "Ofertas activas", value: scopedOffers.length || 0 },
+      { label: "Este mes", value: monthOffers.length || 0 },
+      { label: "Hoy", value: todayOffers.length || 0 },
+      { label: "Mensajes sin leer", value: getUnreadMessageCount() || 0 },
+    ];
+  }, [activeCompany, getUnreadMessageCount, offers, selectedDate]);
 
   const handleOpenDayModal = (day: number, month: number, year: number) => {
     const date = new Date(year, month, day);
@@ -69,7 +95,7 @@ export default function CalendarioPage() {
         <div className="page-header">
           <div>
             <h1 className="page-title">Calendario</h1>
-            <p style={{ color: "#6b7280" }}>
+            <p className="page-subtitle">
               {activeCompany 
                 ? `Gestionando turnos para ${activeCompany.name}` 
                 : "Selecciona una empresa para ver sus turnos"}
@@ -83,6 +109,15 @@ export default function CalendarioPage() {
               </div>
             </div>
           )}
+        </div>
+
+        <div className="calendar-meta">
+          {stats.map((stat) => (
+            <div key={stat.label} className="stat-card">
+              <span className="stat-label">{stat.label}</span>
+              <span className="stat-value">{stat.value}</span>
+            </div>
+          ))}
         </div>
 
         <Calendar

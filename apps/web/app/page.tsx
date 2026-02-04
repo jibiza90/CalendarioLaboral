@@ -13,7 +13,7 @@ export default function Home() {
       if (isAuthenticated) {
         router.push("/calendario");
       } else {
-        router.push("/calendario"); // También va al calendario, puede usarlo como visitante
+        router.push("/login");
       }
     }
   }, [isLoading, isAuthenticated, router]);

@@ -111,137 +111,12 @@ function generateCompanyCode(name: string): string {
   return `${prefix}-${random}`;
 }
 
-// Default data
-const DEFAULT_COMPANIES: Company[] = [
-  { id: "comp-1", name: "Iberia Servicios", province: "Barcelona", code: "IBE-7843" },
-  { id: "comp-2", name: "Tecno Norte", province: "Madrid", code: "TEC-9214" },
-  { id: "comp-3", name: "LogiCat", province: "Barcelona", code: "LOG-5532" },
-];
-
-const DEFAULT_DEPARTMENTS: Department[] = [
-  { id: "dep-ops", name: "Operaciones", companyId: "comp-1" },
-  { id: "dep-soporte", name: "Soporte", companyId: "comp-1" },
-  { id: "dep-log", name: "Logística", companyId: "comp-1" },
-  { id: "dep-rec", name: "Recepción", companyId: "comp-1" },
-  { id: "dep-seg", name: "Seguridad", companyId: "comp-1" },
-];
-
-const DEFAULT_OFFERS: AppOffer[] = [
-  {
-    id: "1",
-    day: 3,
-    date: new Date().toISOString().slice(0, 10),
-    title: "Turno de mañana - atención clientes",
-    description: "Revisión de incidencias, apertura del local y coordinación de stock.",
-    amount: "40 €",
-    department: "dep-ops",
-    departmentName: "Operaciones",
-    companyId: "comp-1",
-    companyName: "Iberia Servicios",
-    type: "Alta demanda",
-    hideName: false,
-    status: "Publicado",
-    ownerId: "user-2",
-    createdAt: new Date().toISOString(),
-    isPremium: true,
-  },
-  {
-    id: "2",
-    day: 3,
-    date: new Date().toISOString().slice(0, 10),
-    title: "Turno tarde - soporte interno",
-    description: "Cobertura de mostrador y seguimiento de pedidos internos.",
-    amount: "20 €",
-    department: "dep-soporte",
-    departmentName: "Soporte",
-    companyId: "comp-1",
-    companyName: "Iberia Servicios",
-    type: "Nueva",
-    hideName: true,
-    status: "Publicado",
-    ownerId: "user-1",
-    createdAt: new Date().toISOString(),
-    isPremium: false,
-  },
-  {
-    id: "3",
-    day: 7,
-    date: new Date(new Date().setDate(7)).toISOString().slice(0, 10),
-    title: "Turno noche - logística",
-    description: "Control de accesos y coordinación de entregas urgentes.",
-    amount: "60 €",
-    department: "dep-log",
-    departmentName: "Logística",
-    companyId: "comp-1",
-    companyName: "Iberia Servicios",
-    type: "Aceptación rápida",
-    hideName: false,
-    status: "Publicado",
-    ownerId: "user-2",
-    createdAt: new Date().toISOString(),
-    isPremium: true,
-  },
-];
-
-const DEFAULT_MESSAGES: AppNegotiationMessage[] = [
-  {
-    id: "m1",
-    offerId: "1",
-    author: "Carlos",
-    authorId: "user-3",
-    role: "taker",
-    text: "Hola, estoy interesado en este turno. ¿Sigues necesitando cobertura?",
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-    offerTitle: "Turno de mañana - atención clientes",
-  },
-  {
-    id: "m2",
-    offerId: "1",
-    author: "María",
-    authorId: "user-2",
-    role: "owner",
-    text: "Sí, aún está disponible. ¿Puedes cubrir todo el día?",
-    createdAt: new Date(Date.now() - 43200000).toISOString(),
-    offerTitle: "Turno de mañana - atención clientes",
-  },
-];
-
-// Demo private messages
-const DEFAULT_PRIVATE_MESSAGES: PrivateMessage[] = [
-  {
-    id: "pm-1",
-    offerId: "1",
-    senderId: "user-3",
-    senderName: "Carlos",
-    receiverId: "user-2",
-    receiverName: "María",
-    text: "Hola María, vi tu oferta del turno de mañana. ¿Todavía está disponible?",
-    read: true,
-    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-  },
-  {
-    id: "pm-2",
-    offerId: "1",
-    senderId: "user-2",
-    senderName: "María",
-    receiverId: "user-3",
-    receiverName: "Carlos",
-    text: "¡Hola Carlos! Sí, aún está disponible. ¿Tienes experiencia en atención al cliente?",
-    read: true,
-    createdAt: new Date(Date.now() - 86400000 * 1.5).toISOString(),
-  },
-  {
-    id: "pm-3",
-    offerId: "1",
-    senderId: "user-3",
-    senderName: "Carlos",
-    receiverId: "user-2",
-    receiverName: "María",
-    text: "Sí, llevo 3 años trabajando en recepción. Me interesa mucho la oferta.",
-    read: false,
-    createdAt: new Date(Date.now() - 43200000).toISOString(),
-  },
-];
+// Default data (vacío para obligar a alta/autenticación)
+const DEFAULT_COMPANIES: Company[] = [];
+const DEFAULT_DEPARTMENTS: Department[] = [];
+const DEFAULT_OFFERS: AppOffer[] = [];
+const DEFAULT_MESSAGES: AppNegotiationMessage[] = [];
+const DEFAULT_PRIVATE_MESSAGES: PrivateMessage[] = [];
 
 const EDIT_TIME_LIMIT = 5 * 60 * 1000; // 5 minutes in milliseconds
 
@@ -252,7 +127,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   
   // Data state
   const [companies, setCompanies] = useState<Company[]>(DEFAULT_COMPANIES);
-  const [activeCompany, setActiveCompany] = useState<Company | null>(DEFAULT_COMPANIES[0]);
+  const [activeCompany, setActiveCompany] = useState<Company | null>(null);
   const [departments, setDepartments] = useState<Department[]>(DEFAULT_DEPARTMENTS);
   const [offers, setOffers] = useState<AppOffer[]>(DEFAULT_OFFERS);
   const [messages, setMessages] = useState<AppNegotiationMessage[]>(DEFAULT_MESSAGES);
@@ -370,9 +245,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addToast({ type: "success", message: `Bienvenido, ${newUser.name}!` });
   };
 
+  const clearAllData = () => {
+    setCompanies(DEFAULT_COMPANIES);
+    setActiveCompany(null);
+    setDepartments(DEFAULT_DEPARTMENTS);
+    setOffers(DEFAULT_OFFERS);
+    setMessages(DEFAULT_MESSAGES);
+    setPrivateMessages(DEFAULT_PRIVATE_MESSAGES);
+    setDeletedConversations([]);
+    setNotificationPrefs({ email: false, push: false, inApp: false });
+    localStorage.removeItem("cl_companies");
+    localStorage.removeItem("cl_active_company");
+    localStorage.removeItem("cl_departments");
+    localStorage.removeItem("cl_offers");
+    localStorage.removeItem("cl_messages");
+    localStorage.removeItem("cl_private_messages");
+    localStorage.removeItem("cl_deleted_conversations");
+    localStorage.removeItem("cl_notifications");
+  };
+
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
+    clearAllData();
+    localStorage.removeItem("cl_user");
     addToast({ type: "info", message: "Sesión cerrada correctamente" });
   };
 
