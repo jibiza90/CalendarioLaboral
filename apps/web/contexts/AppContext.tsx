@@ -121,6 +121,15 @@ const DEFAULT_PRIVATE_MESSAGES: PrivateMessage[] = [];
 
 const EDIT_TIME_LIMIT = 5 * 60 * 1000; // 5 minutes in milliseconds
 
+function setAuthCookie(isAuth: boolean) {
+  if (typeof document === "undefined") return;
+  if (isAuth) {
+    document.cookie = `cl_auth=1; path=/; max-age=${30 * 24 * 60 * 60}`;
+  } else {
+    document.cookie = "cl_auth=; path=/; max-age=0";
+  }
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   // User state
@@ -244,6 +253,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     setUser(userWithSubscription);
     setIsAuthenticated(true);
+    setAuthCookie(true);
     addToast({ type: "success", message: t("toast.login", { name: newUser.name }) });
   };
 
@@ -269,6 +279,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
+    setAuthCookie(false);
     clearAllData();
     localStorage.removeItem("cl_user");
     addToast({ type: "info", message: t("toast.logout") });

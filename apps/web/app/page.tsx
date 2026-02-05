@@ -1,20 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useApp } from "../contexts/AppContext";
 import { useI18n } from "../contexts/I18nContext";
 
 export default function Home() {
   const router = useRouter();
-  const { isLoading, isAuthenticated } = useApp();
   const { t } = useI18n();
-
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      router.push("/calendario");
-    }
-  }, [isLoading, isAuthenticated, router]);
 
   const handlePrimary = () => router.push("/login");
   const handleSecondary = () => {
