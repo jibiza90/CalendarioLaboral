@@ -4,13 +4,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useI18n } from "../contexts/I18nContext";
 
-import heroImg from "./Intercambia-Turnos-de-Trabajo-al-Instante_compressed_compressed_page-0001.jpg";
-import stepsImg from "./Intercambia-Turnos-de-Trabajo-al-Instante_compressed_compressed_page-0002.jpg";
-import benefitsImg from "./Intercambia-Turnos-de-Trabajo-al-Instante_compressed_compressed_page-0003.jpg";
-import sectorsImg from "./Intercambia-Turnos-de-Trabajo-al-Instante_compressed_compressed_page-0004.jpg";
-import dashboardImg from "./Intercambia-Turnos-de-Trabajo-al-Instante_compressed_compressed_page-0005.jpg";
-import calendarImg from "./Intercambia-Turnos-de-Trabajo-al-Instante_compressed_compressed_page-0006.jpg";
-import securityImg from "./Intercambia-Turnos-de-Trabajo-al-Instante_compressed_compressed_page-0007.jpg";
+import heroImg from "../Intercambia-Turnos-de-Trabajo-al-Instante_compressed_compressed_page-0001.jpg";
+import stepsImg from "../Intercambia-Turnos-de-Trabajo-al-Instante_compressed_compressed_page-0002.jpg";
+import benefitsImg from "../Intercambia-Turnos-de-Trabajo-al-Instante_compressed_compressed_page-0003.jpg";
+import sectorsImg from "../Intercambia-Turnos-de-Trabajo-al-Instante_compressed_compressed_page-0004.jpg";
+import dashboardImg from "../Intercambia-Turnos-de-Trabajo-al-Instante_compressed_compressed_page-0005.jpg";
+import calendarImg from "../Intercambia-Turnos-de-Trabajo-al-Instante_compressed_compressed_page-0006.jpg";
+import securityImg from "../Intercambia-Turnos-de-Trabajo-al-Instante_compressed_compressed_page-0007.jpg";
 
 export default function Home() {
   const router = useRouter();
