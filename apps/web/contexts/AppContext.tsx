@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { useI18n } from "./I18nContext";
 import type {
   Company,
   Department,
@@ -121,6 +122,7 @@ const DEFAULT_PRIVATE_MESSAGES: PrivateMessage[] = [];
 const EDIT_TIME_LIMIT = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const { t } = useI18n();
   // User state
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -242,7 +244,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     setUser(userWithSubscription);
     setIsAuthenticated(true);
-    addToast({ type: "success", message: `Bienvenido, ${newUser.name}!` });
+    addToast({ type: "success", message: t("toast.login", { name: newUser.name }) });
   };
 
   const clearAllData = () => {
@@ -269,7 +271,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setIsAuthenticated(false);
     clearAllData();
     localStorage.removeItem("cl_user");
-    addToast({ type: "info", message: "Sesión cerrada correctamente" });
+    addToast({ type: "info", message: t("toast.logout") });
   };
 
   const updateUser = (updates: Partial<UserProfile>) => {
@@ -285,7 +287,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       code,
     };
     setCompanies((prev) => [...prev, company]);
-    addToast({ type: "success", message: `Empresa "${name}" creada. Código: ${code}` });
+    addToast({ type: "success", message: t("toast.company.created", { name, code }) });
     return company;
   };
 
@@ -295,10 +297,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
     if (company) {
       setActiveCompany(company);
-      addToast({ type: "success", message: `Te uniste a ${company.name}` });
+      addToast({ type: "success", message: t("toast.company.joined", { name: company.name }) });
       return true;
     }
-    addToast({ type: "error", message: "Código no válido" });
+    addToast({ type: "error", message: t("toast.company.invalidCode") });
     return false;
   };
 
@@ -323,7 +325,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       createdAt: new Date().toISOString(),
     };
     setOffers((prev) => [...prev, newOffer]);
-    addToast({ type: "success", message: "Oferta publicada correctamente" });
+    addToast({ type: "success", message: t("toast.offer.published") });
     return newOffer;
   };
 
@@ -339,7 +341,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setPrivateMessages((prev) => prev.filter((msg) => msg.offerId !== id));
     // Also clean up deleted conversations for this offer
     setDeletedConversations((prev) => prev.filter((dc) => dc.offerId !== id));
-    addToast({ type: "info", message: "Oferta eliminada" });
+    addToast({ type: "info", message: t("toast.offer.deleted") });
   };
 
   const getOfferById = (id: string) => offers.find((o) => o.id === id);
@@ -561,7 +563,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       })
     );
     
-    addToast({ type: "info", message: "Conversación eliminada" });
+    addToast({ type: "info", message: t("toast.conversation.deleted") });
   };
 
   const restoreConversation = (offerId: string, otherUserId: string) => {
@@ -612,7 +614,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateNotificationPrefs = (prefs: NotificationPreferences) => {
     setNotificationPrefs(prefs);
-    addToast({ type: "success", message: "Preferencias actualizadas" });
+    addToast({ type: "success", message: t("toast.notifications.updated") });
   };
 
   const addToast = (toast: Omit<Toast, "id">) => {

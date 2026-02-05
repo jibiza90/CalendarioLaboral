@@ -1,56 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useApp } from "../../contexts/AppContext";
 import { Sidebar } from "../../components/Sidebar";
 import { CompanySelector } from "../../components/CompanySelector";
 import { getInitials } from "../../lib/utils";
+import { useI18n } from "../../contexts/I18nContext";
 
-const subscriptionPlans = [
-  {
-    id: "free",
-    name: "Gratis",
-    price: 0,
-    features: [
-      "Publicar hasta 5 ofertas/mes",
-      "Ver todas las ofertas",
-      "Negociar turnos",
-    ],
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    price: 9.99,
-    features: [
-      "Ofertas ilimitadas",
-      "Ofertas destacadas ⭐",
-      "Prioridad en búsquedas",
-      "Notificaciones push",
-      "Soporte prioritario",
-    ],
-  },
-  {
-    id: "business",
-    name: "Business",
-    price: 29.99,
-    features: [
-      "Todo lo de Pro",
-      "Múltiples empresas",
-      "Dashboard de analíticas",
-      "Exportar datos",
-      "API access",
-    ],
-  },
+const basePlans = [
+  { id: "free", price: 0, features: ["profile.plan.free.f1", "profile.plan.free.f2", "profile.plan.free.f3"] },
+  { id: "pro", price: 9.99, features: ["profile.plan.pro.f1", "profile.plan.pro.f2", "profile.plan.pro.f3", "profile.plan.pro.f4", "profile.plan.pro.f5"] },
+  { id: "business", price: 29.99, features: ["profile.plan.business.f1", "profile.plan.business.f2", "profile.plan.business.f3", "profile.plan.business.f4", "profile.plan.business.f5"] },
 ];
 
 export default function PerfilPage() {
   const { user, isAuthenticated, logout, updateUser } = useApp();
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<"general" | "empresas" | "suscripcion">("general");
+
+  const subscriptionPlans = useMemo(() => basePlans.map((plan) => ({
+    ...plan,
+    name: t(`profile.plan.${plan.id}.name`),
+    features: plan.features.map((key) => t(key)),
+  })), [t]);
 
   const handleSubscribe = (planId: string) => {
     // Aquí iría la integración con Stripe/PayPal
     updateUser({ subscription: planId as any });
-    alert(`¡Te has suscrito al plan ${planId}! (Demo)`);
+    alert(t("profile.subscribe.toast", { plan: t(`profile.plan.${planId}.name`) }));
   };
 
   if (!isAuthenticated || !user) {
@@ -60,8 +37,8 @@ export default function PerfilPage() {
         <main className="main-content">
           <div className="empty-state">
             <div className="empty-icon">🔐</div>
-            <div className="empty-title">Inicia sesión</div>
-            <div className="empty-desc">Debes iniciar sesión para ver tu perfil</div>
+            <div className="empty-title">{t("profile.login.title")}</div>
+            <div className="empty-desc">{t("profile.login.desc")}</div>
           </div>
         </main>
       </div>
@@ -77,8 +54,8 @@ export default function PerfilPage() {
       <main className="main-content">
         <div className="page-header">
           <div>
-            <h1 className="page-title">Perfil</h1>
-            <p className="page-subtitle">Gestiona tus datos, empresas y suscripción premium</p>
+            <h1 className="page-title">{t("profile.title")}</h1>
+            <p className="page-subtitle">{t("profile.subtitle")}</p>
           </div>
         </div>
 
@@ -107,16 +84,16 @@ export default function PerfilPage() {
             </div>
           </div>
           <button className="btn btn-secondary" onClick={logout}>
-            Cerrar sesión
+            {t("profile.logout")}
           </button>
         </div>
 
         {/* Tabs */}
         <div style={{ display: "flex", gap: "8px", marginBottom: "24px" }}>
           {[
-            { id: "general", label: "General" },
-            { id: "empresas", label: "Empresas" },
-            { id: "suscripcion", label: "Suscripción" },
+            { id: "general", label: t("profile.tabs.general") },
+            { id: "empresas", label: t("profile.tabs.companies") },
+            { id: "suscripcion", label: t("profile.tabs.subscription") },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -131,10 +108,10 @@ export default function PerfilPage() {
         {/* Tab Content */}
         {activeTab === "general" && (
           <div className="card">
-            <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}>Información personal</h3>
+            <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}>{t("profile.personal.title")}</h3>
             <div style={{ display: "grid", gap: "16px" }}>
               <div>
-                <label className="form-label">Nombre</label>
+                <label className="form-label">{t("profile.personal.name")}</label>
                 <input type="text" className="form-input" value={user.name} readOnly />
               </div>
               <div>
@@ -150,11 +127,11 @@ export default function PerfilPage() {
         {activeTab === "suscripcion" && (
           <div>
             <div style={{ marginBottom: "24px" }}>
-              <h3 style={{ fontSize: "18px", fontWeight: 700 }}>Plan actual: {currentPlan.name}</h3>
+              <h3 style={{ fontSize: "18px", fontWeight: 700 }}>{t("profile.subscription.current", { plan: currentPlan.name })}</h3>
               <p style={{ color: "#6b7280" }}>
                 {currentPlan.price === 0
-                  ? "Estás usando el plan gratuito"
-                  : `Pagas €${currentPlan.price}/mes`}
+                  ? t("profile.subscription.free")
+                  : t("profile.subscription.paid", { price: String(currentPlan.price) })}
               </p>
             </div>
 
@@ -179,7 +156,7 @@ export default function PerfilPage() {
                   </ul>
                   {user.subscription === plan.id ? (
                     <button className="btn btn-secondary" style={{ width: "100%" }} disabled>
-                      Plan actual
+                      {t("profile.subscription.currentButton")}
                     </button>
                   ) : (
                     <button
@@ -187,7 +164,7 @@ export default function PerfilPage() {
                       style={{ width: "100%" }}
                       onClick={() => handleSubscribe(plan.id)}
                     >
-                      {plan.price === 0 ? "Seleccionar" : "Suscribirse"}
+                      {plan.price === 0 ? t("profile.subscription.select") : t("profile.subscription.subscribe")}
                     </button>
                   )}
                 </div>

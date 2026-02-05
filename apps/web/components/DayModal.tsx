@@ -4,8 +4,9 @@ import { useApp } from "../contexts/AppContext";
 import type { AppOffer } from "../contexts/AppContext";
 import { formatDate } from "../lib/utils";
 import { OfferForm } from "./OfferForm";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useI18n } from "../contexts/I18nContext";
 
 interface DayModalProps {
   date: Date;
@@ -17,6 +18,19 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
   const router = useRouter();
   const { user, isAuthenticated, activeCompany, departments, addOffer } = useApp();
   const [showForm, setShowForm] = useState(false);
+  const { t, lang } = useI18n();
+
+  const locale = useMemo(() => {
+    const map: Record<string, string> = {
+      es: "es-ES",
+      ca: "ca-ES",
+      en: "en-US",
+      fr: "fr-FR",
+      it: "it-IT",
+      de: "de-DE",
+    };
+    return map[lang] || "es-ES";
+  }, [lang]);
 
   const companyDepts = departments.filter(
     (d) => d.companyId === activeCompany?.id
@@ -37,7 +51,7 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
       day: new Date(data.date).getDate(),
       title: data.description.slice(0, 50) + (data.description.length > 50 ? "..." : ""),
       department: data.departmentId || "",
-      departmentName: dept?.name || "General",
+      departmentName: dept?.name || t("offer.department.general"),
       companyId: activeCompany.id,
       companyName: activeCompany.name,
       type: "Nueva",
@@ -51,8 +65,10 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
 
   const getBadgeClass = (type: string, isPremium?: boolean) => {
     if (isPremium) return "badge-gold";
-    if (type === "Alta demanda") return "badge-red";
-    if (type === "Aceptación rápida") return "badge-green";
+    const highDemand = ["Alta demanda", "High demand", "Alta demanda", "Haute demande", "Alta domanda", "Hohe Nachfrage", t("offer.type.highDemand")];
+    const fastAccept = ["Aceptación rápida", "Quick acceptance", "Acceptació ràpida", "Acceptation rapide", "Accettazione rapida", "Schnelle Annahme", t("offer.type.quick")];
+    if (highDemand.includes(type)) return "badge-red";
+    if (fastAccept.includes(type)) return "badge-green";
     return "badge-blue";
   };
 
@@ -61,9 +77,9 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
       <div className="day-modal" onClick={(e) => e.stopPropagation()}>
         <div className="day-modal-header">
           <div>
-            <h2 className="day-modal-title">{formatDate(date)}</h2>
+            <h2 className="day-modal-title">{date.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" })}</h2>
             <p style={{ color: "#6b7280", marginTop: "4px" }}>
-              {offers.length} {offers.length === 1 ? "oferta" : "ofertas"}
+              {offers.length} {offers.length === 1 ? t("dayModal.oneOffer") : t("dayModal.manyOffers")}
             </p>
           </div>
           <div style={{ display: "flex", gap: "8px" }}>
@@ -72,7 +88,7 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
                 className="btn btn-primary" 
                 onClick={() => setShowForm(true)}
               >
-                + Publicar
+                + {t("dayModal.publish")}
               </button>
             )}
             <button className="btn btn-ghost" onClick={onClose}>
@@ -84,9 +100,9 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
         {showForm ? (
           <div style={{ marginBottom: "24px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-              <h3 style={{ fontSize: "18px", fontWeight: 600 }}>Publicar turno</h3>
+              <h3 style={{ fontSize: "18px", fontWeight: 600 }}>{t("dayModal.form.title")}</h3>
               <button className="btn btn-ghost btn-sm" onClick={() => setShowForm(false)}>
-                Cancelar
+                {t("common.cancel")}
               </button>
             </div>
             <OfferForm
@@ -117,7 +133,7 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
                       </div>
                       {offer.hideName && (
                         <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                          🕵️ Anónimo
+                          🕵️ {t("offer.owner.anonymous")}
                         </span>
                       )}
                     </div>
@@ -137,9 +153,9 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
             ) : (
               <div className="empty-state">
                 <div className="empty-icon">📅</div>
-                <div className="empty-title">Sin ofertas</div>
+                <div className="empty-title">{t("dayModal.empty.title")}</div>
                 <div className="empty-desc">
-                  No hay ofertas para este día. ¡Sé el primero en publicar!
+                  {t("dayModal.empty.desc")}
                 </div>
                 {!isAuthenticated && (
                   <button 
@@ -147,7 +163,7 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
                     style={{ marginTop: "16px" }}
                     onClick={() => router.push("/login")}
                   >
-                    Iniciar sesión
+                    {t("nav.login")}
                   </button>
                 )}
               </div>

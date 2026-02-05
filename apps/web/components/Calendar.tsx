@@ -2,8 +2,8 @@
 
 import type { AppOffer } from "../contexts/AppContext";
 import type { CalendarDay } from "../hooks/useCalendar";
-
-const weekdays = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+import { useI18n } from "../contexts/I18nContext";
+import { useMemo } from "react";
 
 interface CalendarProps {
   days: (CalendarDay & { offers: AppOffer[] })[];
@@ -24,6 +24,20 @@ export function Calendar({
   onSelectDate,
   onOpenDayModal,
 }: CalendarProps) {
+  const { t } = useI18n();
+
+  const weekdays = useMemo(
+    () => [
+      t("calendar.weekdays.mon"),
+      t("calendar.weekdays.tue"),
+      t("calendar.weekdays.wed"),
+      t("calendar.weekdays.thu"),
+      t("calendar.weekdays.fri"),
+      t("calendar.weekdays.sat"),
+      t("calendar.weekdays.sun"),
+    ],
+    [t]
+  );
   const handleDayClick = (day: number, month: number, year: number, isCurrent: boolean) => {
     if (isCurrent) {
       onSelectDate(day, month, year);
@@ -32,8 +46,10 @@ export function Calendar({
   };
 
   const getOfferType = (type: string) => {
-    if (type === "Alta demanda") return "hot";
-    if (type === "Aceptación rápida") return "fast";
+    const highDemand = ["Alta demanda", "High demand", "Alta demanda", "Haute demande", "Alta domanda", "Hohe Nachfrage"];
+    const fastAccept = ["Aceptación rápida", "Quick acceptance", "Acceptació ràpida", "Acceptation rapide", "Accettazione rapida", "Schnelle Annahme"];
+    if (highDemand.includes(type)) return "hot";
+    if (fastAccept.includes(type)) return "fast";
     return "new";
   };
 
@@ -88,7 +104,7 @@ export function Calendar({
                   </div>
                 ))}
                 {slot.offers.length > 3 && (
-                  <div className="day-offer-more">+{slot.offers.length - 3} más</div>
+                  <div className="day-offer-more">{t("calendar.more", { count: String(slot.offers.length - 3) })}</div>
                 )}
               </div>
             </button>

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { AppProvider } from "../contexts/AppContext";
+import { I18nProvider } from "../contexts/I18nContext";
 import { ToastContainer } from "../components/ui/Toast";
 import "./globals.css";
 
@@ -16,10 +17,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body>
-        <AppProvider>
-          {children}
-          <ToastContainer />
-        </AppProvider>
+        <I18nProvider>
+          <AppProvider>
+            {children}
+            <ToastContainer />
+          </AppProvider>
+        </I18nProvider>
       </body>
     </html>
   );

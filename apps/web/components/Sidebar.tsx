@@ -2,19 +2,38 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useApp } from "../contexts/AppContext";
+import { useI18n } from "../contexts/I18nContext";
 
 export function Sidebar() {
   const pathname = usePathname();
   const { user, isAuthenticated, logout, getUnreadMessageCount } = useApp();
   const unreadCount = getUnreadMessageCount();
+  const { t, lang, setLang, available } = useI18n();
+
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    const saved = typeof window !== "undefined" ? localStorage.getItem("cl_theme") : null;
+    const initialTheme = saved === "dark" ? "dark" : "light";
+    setTheme(initialTheme);
+    document.documentElement.setAttribute("data-theme", initialTheme);
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("cl_theme", next);
+  };
 
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
         <Link href="/calendario" className="brand">
           <div className="brand-icon">CL</div>
-          <span>Calendario Laboral</span>
+          <span>{t("nav.brand")}</span>
         </Link>
       </div>
 
@@ -24,14 +43,14 @@ export function Sidebar() {
           className={`nav-item ${pathname === "/calendario" ? "active" : ""}`}
         >
           <span>📅</span>
-          <span>Calendario</span>
+          <span>{t("nav.calendar")}</span>
         </Link>
         <Link
           href="/mensajes"
           className={`nav-item ${pathname.startsWith("/mensajes") || pathname.startsWith("/ofertas") ? "active" : ""}`}
         >
           <span>💬</span>
-          <span>Mensajes</span>
+          <span>{t("nav.messages")}</span>
           {unreadCount > 0 && (
             <span className="nav-badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
           )}
@@ -41,7 +60,7 @@ export function Sidebar() {
           className={`nav-item ${pathname === "/perfil" ? "active" : ""}`}
         >
           <span>👤</span>
-          <span>Perfil</span>
+          <span>{t("nav.profile")}</span>
         </Link>
       </nav>
 
@@ -62,18 +81,35 @@ export function Sidebar() {
               </div>
               <div style={{ fontSize: "12px", color: "#6b7280" }}>
                 {user.subscription === "pro" || user.subscription === "business" ? "⭐ " : ""}
-                {user.subscription || "free"}
+                {user.subscription ? t(`profile.plan.${user.subscription}.name`) : t("profile.plan.free.name")}
               </div>
             </div>
             <button className="btn btn-ghost btn-sm" onClick={logout}>
-              Salir
+              {t("auth.logout")}
             </button>
           </div>
         ) : (
           <Link href="/login" className="btn btn-primary" style={{ width: "100%" }}>
-            Iniciar sesión
+            {t("nav.login")}
           </Link>
         )}
+        <div style={{ display: "grid", gap: "8px", marginTop: "10px" }}>
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value as any)}
+            className="form-input"
+            style={{ width: "100%" }}
+          >
+            {available.map((loc) => (
+              <option key={loc} value={loc}>
+                {loc.toUpperCase()}
+              </option>
+            ))}
+          </select>
+          <button className="btn btn-secondary" style={{ width: "100%" }} onClick={toggleTheme}>
+            {theme === "light" ? t("theme.dark") : t("theme.light")}
+          </button>
+        </div>
       </div>
     </aside>
   );

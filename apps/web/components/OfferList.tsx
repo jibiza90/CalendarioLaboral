@@ -2,6 +2,8 @@
 
 import type { AppOffer } from "../contexts/AppContext";
 import { formatDate } from "../lib/utils";
+import { useI18n } from "../contexts/I18nContext";
+import { useMemo } from "react";
 
 interface OfferListProps {
   offers: AppOffer[];
@@ -18,10 +20,34 @@ export function OfferList({
   onPublish,
   isAuthenticated,
 }: OfferListProps) {
+  const { t, lang } = useI18n();
+  const locale = useMemo(() => {
+    const map: Record<string, string> = {
+      es: "es-ES",
+      ca: "ca-ES",
+      en: "en-US",
+      fr: "fr-FR",
+      it: "it-IT",
+      de: "de-DE",
+    };
+    return map[lang] || "es-ES";
+  }, [lang]);
+
   const getBadgeClass = (type: string) => {
     switch (type) {
-      case "Alta demanda": return "hot";
-      case "Aceptación rápida": return "fast";
+      case "Alta demanda":
+      case "High demand":
+      case "Haute demande":
+      case "Alta domanda":
+      case "Hohe Nachfrage":
+        return "hot";
+      case "Aceptación rápida":
+      case "Quick acceptance":
+      case "Acceptation rapide":
+      case "Acceptació ràpida":
+      case "Accettazione rapida":
+      case "Schnelle Annahme":
+        return "fast";
       default: return "new";
     }
   };
@@ -32,7 +58,9 @@ export function OfferList({
         <div>
           <h3 className="card-title">{formatDate(selectedDate)}</h3>
           <p className="card-subtitle">
-            {offers.length === 0 ? "Sin ofertas" : `${offers.length} oferta${offers.length !== 1 ? 's' : ''}`}
+            {offers.length === 0
+              ? t("offerList.empty")
+              : t("offerList.count", { count: String(offers.length) })}
           </p>
         </div>
         <button
@@ -40,7 +68,7 @@ export function OfferList({
           onClick={onPublish}
           disabled={!isAuthenticated}
         >
-          + Publicar
+          + {t("offerList.publish")}
         </button>
       </div>
 
@@ -48,10 +76,10 @@ export function OfferList({
         {offers.length === 0 ? (
           <div className="empty-state" style={{ padding: "40px 20px" }}>
             <div className="empty-state-icon" style={{ width: "64px", height: "64px", fontSize: "28px" }}>📅</div>
-            <p style={{ fontSize: "14px", color: "var(--text-secondary)" }}>No hay ofertas para este día</p>
+            <p style={{ fontSize: "14px", color: "var(--text-secondary)" }}>{t("offerList.empty")}</p>
             {isAuthenticated && (
               <button className="btn btn-secondary btn-sm" onClick={onPublish} style={{ marginTop: "16px" }}>
-                Crear oferta
+                {t("offerList.create")}
               </button>
             )}
           </div>

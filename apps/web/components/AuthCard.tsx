@@ -3,18 +3,20 @@
 import { useRouter } from "next/navigation";
 import { useApp } from "../contexts/AppContext";
 import { getInitials } from "../lib/utils";
+import { useI18n } from "../contexts/I18nContext";
 
 export function AuthCard() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useApp();
+  const { t } = useI18n();
 
   if (!isAuthenticated || !user) {
     return (
       <div className="card">
         <div className="card-header">
           <div>
-            <h3 className="card-title">Cuenta</h3>
-            <p className="card-subtitle">Inicia sesión para acceder</p>
+            <h3 className="card-title">{t("auth.title")}</h3>
+            <p className="card-subtitle">{t("auth.subtitle.loggedOut")}</p>
           </div>
         </div>
         <div style={{ textAlign: "center", padding: "40px 20px" }}>
@@ -22,10 +24,10 @@ export function AuthCard() {
             ◉
           </div>
           <p style={{ fontSize: "14px", color: "var(--text-secondary)", marginBottom: "20px" }}>
-            Publica ofertas y negocia turnos
+            {t("auth.cta.copy")}
           </p>
           <button className="btn btn-primary" onClick={() => router.push("/login")}>
-            Iniciar sesión
+            {t("nav.login")}
           </button>
         </div>
       </div>
@@ -36,8 +38,8 @@ export function AuthCard() {
     <div className="card">
       <div className="card-header">
         <div>
-          <h3 className="card-title">Cuenta</h3>
-          <p className="card-subtitle">Sesión iniciada</p>
+          <h3 className="card-title">{t("auth.title")}</h3>
+          <p className="card-subtitle">{t("auth.subtitle.loggedIn")}</p>
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -49,7 +51,7 @@ export function AuthCard() {
           <div style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>{user.email}</div>
         </div>
         <button className="btn btn-ghost btn-sm" onClick={logout}>
-          Salir
+          {t("auth.logout")}
         </button>
       </div>
     </div>

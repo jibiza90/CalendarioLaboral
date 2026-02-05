@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "../../contexts/AppContext";
 import { Sidebar } from "../../components/Sidebar";
 import Link from "next/link";
+import { useI18n } from "../../contexts/I18nContext";
 
 const TrashIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -21,10 +22,22 @@ const RestoreIcon = () => (
 );
 
 export default function MessagesPage() {
-  const { user, isAuthenticated, getUserConversations, deleteConversation, restoreConversation, getDeletedConversations, getOfferById } = useApp();
+  const { user, isAuthenticated, getUserConversations, deleteConversation, restoreConversation, getDeletedConversations, getOfferById, privateMessages } = useApp();
   const router = useRouter();
   const [showDeleted, setShowDeleted] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<{ offerId: string; otherUserId: string; otherUserName: string } | null>(null);
+  const { t, lang } = useI18n();
+  const locale = useMemo(() => {
+    const map: Record<string, string> = {
+      es: "es-ES",
+      ca: "ca-ES",
+      en: "en-US",
+      fr: "fr-FR",
+      it: "it-IT",
+      de: "de-DE",
+    };
+    return map[lang] || "es-ES";
+  }, [lang]);
   
   const conversations = getUserConversations();
   const deletedConvs = getDeletedConversations();
@@ -42,13 +55,13 @@ export default function MessagesPage() {
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     
     if (days === 0) {
-      return date.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+      return date.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
     } else if (days === 1) {
-      return "Ayer";
+      return t("messages.time.yesterday");
     } else if (days < 7) {
-      return date.toLocaleDateString("es-ES", { weekday: "long" });
+      return date.toLocaleDateString(locale, { weekday: "long" });
     } else {
-      return date.toLocaleDateString("es-ES", { day: "numeric", month: "short" });
+      return date.toLocaleDateString(locale, { day: "numeric", month: "short" });
     }
   };
 
@@ -65,17 +78,17 @@ export default function MessagesPage() {
   const deletedConversationsInfo = deletedConvs.map(dc => {
     const offer = getOfferById(dc.offerId);
     // Find the other user's name from private messages
-    const relatedMsg = useApp().privateMessages.find(
+    const relatedMsg = privateMessages.find(
       m => m.offerId === dc.offerId && 
       (m.senderId === dc.otherUserId || m.receiverId === dc.otherUserId)
     );
     const otherUserName = relatedMsg?.senderId === dc.otherUserId 
       ? relatedMsg.senderName 
-      : relatedMsg?.receiverName || "Usuario";
+      : relatedMsg?.receiverName || t("messages.userFallback");
     
     return {
       ...dc,
-      offerTitle: offer?.title || "Oferta no disponible",
+      offerTitle: offer?.title || t("messages.offerUnavailable"),
       otherUserName,
     };
   });
@@ -85,7 +98,7 @@ export default function MessagesPage() {
       <div className="page-container">
         <Sidebar />
         <main className="main-content">
-          <div className="loading-state">Cargando...</div>
+          <div className="loading-state">{t("common.loading")}</div>
         </main>
       </div>
     );
@@ -98,22 +111,24 @@ export default function MessagesPage() {
         <div className="messages-page">
           <div className="page-header">
             <div>
-              <h1 className="page-title">Mensajes</h1>
-              <p className="page-subtitle">Tus conversaciones privadas y notificaciones internas</p>
+              <h1 className="page-title">{t("messages.title")}</h1>
+              <p className="page-subtitle">{t("messages.subtitle")}</p>
             </div>
             {deletedConversationsInfo.length > 0 && (
               <button 
                 className="toggle-deleted-btn"
                 onClick={() => setShowDeleted(!showDeleted)}
               >
-                {showDeleted ? "Ocultar eliminadas" : `Ver eliminadas (${deletedConversationsInfo.length})`}
+                {showDeleted 
+                  ? t("messages.toggle.hide") 
+                  : t("messages.toggle.show", { count: String(deletedConversationsInfo.length) })}
               </button>
             )}
           </div>
 
           {showDeleted && deletedConversationsInfo.length > 0 && (
             <div className="deleted-section">
-              <h3>Conversaciones eliminadas</h3>
+              <h3>{t("messages.deleted.title")}</h3>
               <div className="conversations-list deleted">
                 {deletedConversationsInfo.map((dc) => (
                   <div key={`${dc.offerId}-${dc.otherUserId}`} className="conversation-card deleted">
@@ -131,7 +146,7 @@ export default function MessagesPage() {
                           onClick={() => handleRestore(dc.offerId, dc.otherUserId)}
                         >
                           <RestoreIcon />
-                          Restaurar conversación
+                          {t("messages.restore")}
                         </button>
                       </div>
                     </div>
@@ -144,10 +159,10 @@ export default function MessagesPage() {
           {conversations.length === 0 && !showDeleted ? (
             <div className="empty-state">
               <div className="empty-icon">💬</div>
-              <h2>No tienes mensajes</h2>
-              <p>Cuando te comuniques con otros usuarios sobre una oferta, tus conversaciones aparecerán aquí.</p>
+              <h2>{t("messages.empty.title")}</h2>
+              <p>{t("messages.empty.desc")}</p>
               <Link href="/calendario" className="btn-primary">
-                Explorar ofertas
+                {t("messages.empty.cta")}
               </Link>
             </div>
           ) : (
@@ -172,7 +187,7 @@ export default function MessagesPage() {
                       <div className="conversation-preview">
                         <p className={conv.unreadCount > 0 ? "unread" : ""}>
                           {conv.lastMessage.senderId === user.id ? (
-                            <span className="you-prefix">Tú: </span>
+                            <span className="you-prefix">{t("messages.you")}</span>
                           ) : null}
                           {conv.lastMessage.text}
                         </p>
@@ -189,7 +204,7 @@ export default function MessagesPage() {
                       otherUserId: conv.otherUser.id,
                       otherUserName: conv.otherUser.name 
                     })}
-                    title="Eliminar conversación"
+                    title={t("messages.delete.tooltip")}
                   >
                     <TrashIcon />
                   </button>
@@ -203,20 +218,19 @@ export default function MessagesPage() {
         {confirmDelete && (
           <div className="modal-overlay" onClick={() => setConfirmDelete(null)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <h3>¿Eliminar conversación?</h3>
+              <h3>{t("messages.delete.title")}</h3>
               <p>
-                Esta conversación con <strong>{confirmDelete.otherUserName}</strong> se eliminará de tu lista.
-                El otro usuario seguirá viendo los mensajes hasta que también la elimine.
+                {t("messages.delete.body", { name: confirmDelete.otherUserName })}
               </p>
               <div className="modal-actions">
                 <button className="btn btn-secondary" onClick={() => setConfirmDelete(null)}>
-                  Cancelar
+                  {t("messages.delete.cancel")}
                 </button>
                 <button 
                   className="btn btn-danger" 
                   onClick={() => handleDelete(confirmDelete.offerId, confirmDelete.otherUserId)}
                 >
-                  Sí, eliminar
+                  {t("messages.delete.confirm")}
                 </button>
               </div>
             </div>

@@ -6,6 +6,7 @@ import { useCalendar } from "../../hooks/useCalendar";
 import { Calendar } from "../../components/Calendar";
 import { DayModal } from "../../components/DayModal";
 import { Sidebar } from "../../components/Sidebar";
+import { useI18n } from "../../contexts/I18nContext";
 
 export default function CalendarioPage() {
   const {
@@ -15,6 +16,7 @@ export default function CalendarioPage() {
     offers,
     getUnreadMessageCount,
   } = useApp();
+  const { t } = useI18n();
 
   const {
     selectedDate,
@@ -94,11 +96,11 @@ export default function CalendarioPage() {
       <main className="main-content">
         <div className="page-header">
           <div>
-            <h1 className="page-title">Calendario</h1>
+            <h1 className="page-title">{t("calendar.title")}</h1>
             <p className="page-subtitle">
               {activeCompany 
-                ? `Gestionando turnos para ${activeCompany.name}` 
-                : "Selecciona una empresa para ver sus turnos"}
+                ? t("calendar.subtitle.company", { company: activeCompany.name }) 
+                : t("calendar.subtitle.noCompany")}
             </p>
           </div>
           {activeCompany && (

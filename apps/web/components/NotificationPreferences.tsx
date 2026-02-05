@@ -1,6 +1,7 @@
 "use client";
 
 import type { NotificationPreferences } from "../types";
+import { useI18n } from "../contexts/I18nContext";
 
 interface NotificationPreferencesCardProps {
   preferences: NotificationPreferences;
@@ -11,22 +12,23 @@ export function NotificationPreferencesCard({
   preferences,
   onChange,
 }: NotificationPreferencesCardProps) {
+  const { t } = useI18n();
   const toggle = (key: keyof NotificationPreferences) => {
     onChange({ ...preferences, [key]: !preferences[key] });
   };
 
   const channels = [
-    { key: "email" as const, label: "Email", description: "Recibe notificaciones en tu correo" },
-    { key: "push" as const, label: "Push", description: "Notificaciones en el navegador" },
-    { key: "inApp" as const, label: "In-app", description: "Notificaciones dentro de la app" },
+    { key: "email" as const, label: t("notifications.email.title"), description: t("notifications.email.desc") },
+    { key: "push" as const, label: t("notifications.push.title"), description: t("notifications.push.desc") },
+    { key: "inApp" as const, label: t("notifications.inApp.title"), description: t("notifications.inApp.desc") },
   ];
 
   return (
     <div className="card" style={{ maxWidth: "600px" }}>
       <div className="card-header">
         <div>
-          <h3 className="card-title">Notificaciones</h3>
-          <p className="card-subtitle">Elige cómo quieres recibir alertas</p>
+          <h3 className="card-title">{t("notifications.title")}</h3>
+          <p className="card-subtitle">{t("notifications.subtitle")}</p>
         </div>
       </div>
 

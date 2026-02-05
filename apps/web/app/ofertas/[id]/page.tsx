@@ -5,6 +5,7 @@ import { useApp } from "../../../contexts/AppContext";
 import { Sidebar } from "../../../components/Sidebar";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PrivateMessage } from "../../../types";
+import { useI18n } from "../../../contexts/I18nContext";
 
 const CheckIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -72,6 +73,18 @@ export default function OfferDetailPage() {
     deleteConversation,
     addToast,
   } = useApp();
+  const { t, lang } = useI18n();
+  const locale = useMemo(() => {
+    const map: Record<string, string> = {
+      es: "es-ES",
+      ca: "ca-ES",
+      en: "en-US",
+      fr: "fr-FR",
+      it: "it-IT",
+      de: "de-DE",
+    };
+    return map[lang] || "es-ES";
+  }, [lang]);
 
   const [messageText, setMessageText] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -202,7 +215,7 @@ export default function OfferDetailPage() {
     if (!offer || !user) return;
     // Extra security check - only owner can delete
     if (offer.ownerId !== user.id) {
-      addToast({ type: "error", message: "No tienes permiso para eliminar esta oferta" });
+      addToast({ type: "error", message: t("offer.delete.noPermission") });
       return;
     }
     deleteOffer(offer.id);
@@ -211,12 +224,12 @@ export default function OfferDetailPage() {
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+    return date.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("es-ES", { day: "numeric", month: "short" });
+    return date.toLocaleDateString(locale, { day: "numeric", month: "short" });
   };
 
   const isSameDay = (date1: string, date2: string) => {
@@ -231,7 +244,7 @@ export default function OfferDetailPage() {
       <div className="page-container">
         <Sidebar />
         <main className="main-content">
-          <div className="loading-state">Cargando...</div>
+          <div className="loading-state">{t("common.loading")}</div>
         </main>
       </div>
     );
@@ -247,7 +260,7 @@ export default function OfferDetailPage() {
           {/* Header */}
           <div className="offer-detail-header">
             <button className="back-button" onClick={() => router.push("/calendario")}>
-              ← Volver al calendario
+              {t("offer.back")}
             </button>
             <div className="offer-status-badges">
               <span className={`status-badge ${offer.status.toLowerCase().replace(" ", "-")}`}>
@@ -255,7 +268,7 @@ export default function OfferDetailPage() {
               </span>
               {offer.isPremium && (
                 <span className="premium-badge">
-                  <span className="crown">👑</span> Premium
+                  <span className="crown">👑</span> {t("offer.premium")}
                 </span>
               )}
             </div>
@@ -268,23 +281,23 @@ export default function OfferDetailPage() {
               
               <div className="offer-meta">
                 <div className="meta-item">
-                  <span className="meta-label">Empresa</span>
+                  <span className="meta-label">{t("offer.meta.company")}</span>
                   <span className="meta-value company-name">{offer.companyName}</span>
                 </div>
                 <div className="meta-item">
-                  <span className="meta-label">Departamento</span>
+                  <span className="meta-label">{t("offer.meta.department")}</span>
                   <span className="meta-value">{offer.departmentName}</span>
                 </div>
                 <div className="meta-item">
-                  <span className="meta-label">Fecha</span>
-                  <span className="meta-value">{new Date(offer.date).toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" })}</span>
+                  <span className="meta-label">{t("offer.meta.date")}</span>
+                  <span className="meta-value">{new Date(offer.date).toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" })}</span>
                 </div>
                 <div className="meta-item">
-                  <span className="meta-label">Tarifa</span>
-                  <span className="meta-value amount">{offer.amount || "No especificada"}</span>
+                  <span className="meta-label">{t("offer.meta.rate")}</span>
+                  <span className="meta-value amount">{offer.amount || t("offer.meta.rateUnset")}</span>
                 </div>
                 <div className="meta-item">
-                  <span className="meta-label">Tipo</span>
+                  <span className="meta-label">{t("offer.meta.type")}</span>
                   <span className={`meta-value type-${offer.type.toLowerCase().replace(/\s+/g, "-")}`}>
                     {offer.type}
                   </span>
@@ -292,26 +305,26 @@ export default function OfferDetailPage() {
               </div>
 
               <div className="offer-description">
-                <h3>Descripción</h3>
+                <h3>{t("offer.description.title")}</h3>
                 <p>{offer.description}</p>
               </div>
 
               {/* Owner Info */}
               <div className="owner-info">
-                <h3>Publicado por</h3>
+                <h3>{t("offer.owner.title")}</h3>
                 <div className="owner-card">
                   <div className="owner-avatar">
                     {ownerInfo?.name.charAt(0).toUpperCase() || "U"}
                   </div>
                   <div className="owner-details">
                     <span className="owner-name">
-                      {offer.hideName ? "Usuario anónimo" : ownerInfo?.name}
+                      {offer.hideName ? t("offer.owner.anonymous") : ownerInfo?.name}
                       {ownerInfo?.subscription !== "free" && (
                         <span className="owner-premium-badge">★</span>
                       )}
                     </span>
                     <span className="owner-role">
-                      {isOwner ? "Tú eres el propietario" : "Propietario de la oferta"}
+                      {isOwner ? t("offer.owner.you") : t("offer.owner.role")}
                     </span>
                   </div>
                 </div>
@@ -320,14 +333,14 @@ export default function OfferDetailPage() {
               {/* Company Info */}
               {company && (
                 <div className="company-info-box">
-                  <h3>Información de la empresa</h3>
+                  <h3>{t("offer.company.title")}</h3>
                   <div className="company-details">
                     <div className="company-detail-row">
-                      <span className="detail-label">Código:</span>
+                      <span className="detail-label">{t("offer.company.code")}</span>
                       <code className="company-code">{company.code}</code>
                     </div>
                     <div className="company-detail-row">
-                      <span className="detail-label">Provincia:</span>
+                      <span className="detail-label">{t("offer.company.province")}</span>
                       <span>{company.province}</span>
                     </div>
                   </div>
@@ -339,7 +352,7 @@ export default function OfferDetailPage() {
                   className="delete-offer-button"
                   onClick={() => setShowDeleteConfirm(true)}
                 >
-                  🗑️ Eliminar oferta
+                  🗑️ {t("offer.delete.button")}
                 </button>
               )}
             </div>
@@ -349,14 +362,14 @@ export default function OfferDetailPage() {
               <div className="chat-header">
                 <div className="chat-header-main">
                   <div>
-                    <h2>💬 Chat Privado</h2>
+                    <h2>💬 {t("offer.chat.title")}</h2>
                     {isOwner ? (
                       <p className="chat-subtitle">
-                        Gestiona tus conversaciones sobre esta oferta
+                        {t("offer.chat.subtitle.owner")}
                       </p>
                     ) : (
                       <p className="chat-subtitle">
-                        Conversación privada con {ownerInfo?.name}
+                        {t("offer.chat.subtitle.other", { name: ownerInfo?.name || "" })}
                       </p>
                     )}
                   </div>
@@ -364,7 +377,7 @@ export default function OfferDetailPage() {
                     <button
                       className="delete-conv-button"
                       onClick={() => setShowDeleteConvConfirm(true)}
-                      title="Eliminar conversación"
+                      title={t("offer.chat.delete.tooltip")}
                     >
                       <TrashIcon />
                     </button>
@@ -375,7 +388,7 @@ export default function OfferDetailPage() {
               {/* Chat List (for owner) */}
               {isOwner && offerConversations.length > 0 && (
                 <div className="chat-list">
-                  <h4>Conversaciones</h4>
+                  <h4>{t("offer.chat.list.title")}</h4>
                   {offerConversations.map((conv) => (
                     <button
                       key={conv.otherUser.id}
@@ -403,8 +416,8 @@ export default function OfferDetailPage() {
                       {conversation.length === 0 ? (
                         <div className="chat-empty">
                           <div className="empty-icon">💬</div>
-                          <p>Aún no hay mensajes</p>
-                          <span>Inicia la conversación con {selectedChatUser.name}</span>
+                          <p>{t("offer.chat.empty.title")}</p>
+                          <span>{t("offer.chat.empty.subtitle", { name: selectedChatUser.name })}</span>
                         </div>
                       ) : (
                         <>
@@ -440,15 +453,15 @@ export default function OfferDetailPage() {
                                           className="edit-input"
                                         />
                                         <div className="edit-actions">
-                                          <button onClick={handleSaveEdit} className="edit-save">Guardar</button>
-                                          <button onClick={handleCancelEdit} className="edit-cancel">Cancelar</button>
+                                          <button onClick={handleSaveEdit} className="edit-save">{t("offer.chat.edit.save")}</button>
+                                          <button onClick={handleCancelEdit} className="edit-cancel">{t("offer.chat.edit.cancel")}</button>
                                         </div>
                                       </div>
                                     ) : (
                                       <div className={`message-bubble ${canEdit && remainingTime > 0 ? "editable" : ""}`}>
                                         <p className="message-text">{msg.text}</p>
                                         {msg.edited && (
-                                          <span className="edited-label">(editado)</span>
+                                          <span className="edited-label">{t("offer.chat.edited")}</span>
                                         )}
                                       </div>
                                     )}
@@ -464,7 +477,7 @@ export default function OfferDetailPage() {
                                       <button
                                         className="edit-button"
                                         onClick={() => handleStartEdit(msg)}
-                                        title={`Editar (${formatRemainingTime(remainingTime)})`}
+                                        title={t("offer.chat.edit.tooltip", { time: formatRemainingTime(remainingTime) })}
                                       >
                                         <EditIcon />
                                         <span>{formatRemainingTime(remainingTime)}</span>
@@ -483,7 +496,7 @@ export default function OfferDetailPage() {
                     <div className="chat-input-area">
                       <textarea
                         className="chat-input"
-                        placeholder={`Escribe un mensaje a ${selectedChatUser.name}...`}
+                        placeholder={t("offer.chat.placeholder", { name: selectedChatUser.name })}
                         value={messageText}
                         onChange={(e) => setMessageText(e.target.value)}
                       />
@@ -501,8 +514,8 @@ export default function OfferDetailPage() {
                 ) : (
                   <div className="chat-empty">
                     <div className="empty-icon">👥</div>
-                    <p>No hay conversaciones activas</p>
-                    <span>Los interesados aparecerán aquí</span>
+                    <p>{t("offer.chat.noConversations")}</p>
+                    <span>{t("offer.chat.noConversations.subtitle")}</span>
                   </div>
                 )}
               </div>
@@ -514,14 +527,14 @@ export default function OfferDetailPage() {
         {showDeleteConfirm && (
           <div className="modal-overlay" onClick={() => setShowDeleteConfirm(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <h3>¿Eliminar oferta?</h3>
-              <p>Esta acción no se puede deshacer. La oferta y todas sus conversaciones se eliminarán permanentemente.</p>
+              <h3>{t("offer.delete.title")}</h3>
+              <p>{t("offer.delete.body")}</p>
               <div className="modal-actions">
                 <button className="btn-secondary" onClick={() => setShowDeleteConfirm(false)}>
-                  Cancelar
+                  {t("offer.delete.cancel")}
                 </button>
                 <button className="btn-danger" onClick={handleDelete}>
-                  Sí, eliminar
+                  {t("offer.delete.confirm")}
                 </button>
               </div>
             </div>
@@ -532,14 +545,14 @@ export default function OfferDetailPage() {
         {showDeleteConvConfirm && selectedChatUser && (
           <div className="modal-overlay" onClick={() => setShowDeleteConvConfirm(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <h3>¿Eliminar conversación?</h3>
-              <p>Esta conversación se eliminará de tu lista. {selectedChatUser.name} seguirá viendo los mensajes hasta que también la elimine.</p>
+              <h3>{t("offer.chat.delete.title")}</h3>
+              <p>{t("offer.chat.delete.body", { name: selectedChatUser.name })}</p>
               <div className="modal-actions">
                 <button className="btn-secondary" onClick={() => setShowDeleteConvConfirm(false)}>
-                  Cancelar
+                  {t("offer.chat.delete.cancel")}
                 </button>
                 <button className="btn-danger" onClick={handleDeleteConversation}>
-                  Sí, eliminar
+                  {t("offer.chat.delete.confirm")}
                 </button>
               </div>
             </div>
