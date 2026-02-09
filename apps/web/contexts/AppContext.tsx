@@ -12,6 +12,8 @@ import type {
   NegotiationMessage,
   PrivateMessage,
   Conversation,
+  CounterOffer,
+  OfferExchangeType,
 } from "../types";
 
 // Extended types for the app
@@ -43,7 +45,9 @@ interface AppState {
   login: (user: UserProfile) => void;
   logout: () => void;
   updateUser: (updates: Partial<UserProfile>) => void;
-  
+  setAvailableDays: (dates: string[]) => void;
+  getAvailableDays: () => string[];
+
   // Companies
   companies: Company[];
   activeCompany: Company | null;
@@ -51,11 +55,11 @@ interface AppState {
   addCompany: (name: string, province: string) => Company;
   joinCompanyByCode: (code: string) => Company | null;
   searchCompanies: (query: string) => Company[];
-  
+
   // Departments
   departments: Department[];
   addDepartment: (department: Department) => void;
-  
+
   // Offers
   offers: AppOffer[];
   addOffer: (offer: Omit<AppOffer, "id" | "createdAt"> & { day: number }) => void;
@@ -63,7 +67,18 @@ interface AppState {
   deleteOffer: (id: string) => void;
   getOfferById: (id: string) => AppOffer | undefined;
   getOffersByDay: (day: number, month: number, year: number) => AppOffer[];
-  
+  getMyOffers: () => AppOffer[];
+  acceptOffer: (offerId: string) => void;
+  rejectOffer: (offerId: string) => void;
+  findMatches: (needDate: string, offeredDates?: string[]) => { userId: string; userName: string; availableDates: string[]; matchScore: number }[];
+
+  // Counter Offers
+  counterOffers: CounterOffer[];
+  createCounterOffer: (originalOfferId: string, amount?: string, offeredDates?: string[], message?: string) => void;
+  acceptCounterOffer: (counterOfferId: string) => void;
+  rejectCounterOffer: (counterOfferId: string) => void;
+  getCounterOffersByOfferId: (offerId: string) => CounterOffer[];
+
   // Private Messages
   privateMessages: PrivateMessage[];
   sendPrivateMessage: (offerId: string, receiverId: string, receiverName: string, text: string) => void;
@@ -76,16 +91,16 @@ interface AppState {
   deleteConversation: (offerId: string, otherUserId: string) => void;
   restoreConversation: (offerId: string, otherUserId: string) => void;
   getDeletedConversations: () => DeletedConversation[];
-  
+
   // Legacy Negotiations (keep for compatibility)
   messages: AppNegotiationMessage[];
   addMessage: (message: Omit<AppNegotiationMessage, "id" | "createdAt">) => void;
   getMessagesByOfferId: (offerId: string) => AppNegotiationMessage[];
-  
+
   // Notifications
   notificationPrefs: NotificationPreferences;
   updateNotificationPrefs: (prefs: NotificationPreferences) => void;
-  
+
   // UI
   isLoading: boolean;
   toasts: Toast[];
@@ -144,6 +159,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<AppNegotiationMessage[]>(DEFAULT_MESSAGES);
   const [privateMessages, setPrivateMessages] = useState<PrivateMessage[]>(DEFAULT_PRIVATE_MESSAGES);
   const [deletedConversations, setDeletedConversations] = useState<DeletedConversation[]>([]);
+  const [counterOffers, setCounterOffers] = useState<CounterOffer[]>([]);
   const [notificationPrefs, setNotificationPrefs] = useState<NotificationPreferences>({
     email: true,
     push: false,
@@ -289,6 +305,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setUser((prev) => (prev ? { ...prev, ...updates } : null));
   };
 
+  const setAvailableDays = (dates: string[]) => {
+    updateUser({ availableDays: dates });
+  };
+
+  const getAvailableDays = (): string[] => {
+    return user?.availableDays || [];
+  };
+
   const addCompany = (name: string, location: string): Company => {
     const inviteCode = generateCompanyCode(name);
     const company: Company = {
@@ -372,6 +396,67 @@ export function AppProvider({ children }: { children: ReactNode }) {
         offerDate.getFullYear() === year
       );
     });
+  };
+
+  const getMyOffers = (): AppOffer[] => {
+    if (!user) return [];
+    return offers.filter((o) => o.ownerId === user.id);
+  };
+
+  const acceptOffer = (offerId: string) => {
+    if (!user) return;
+    const offer = offers.find((o) => o.id === offerId);
+    if (!offer) return;
+
+    updateOffer(offerId, {
+      status: "Aceptado",
+      acceptedByUserId: user.id,
+      acceptedAt: new Date().toISOString(),
+    });
+
+    sendPrivateMessage(
+      offerId,
+      offer.ownerId,
+      user.name,
+      `He aceptado tu oferta de intercambio. ¡Confirmemos los detalles!`
+    );
+  };
+
+  const rejectOffer = (offerId: string) => {
+    updateOffer(offerId, {
+      status: "Rechazado",
+    });
+  };
+
+  const findMatches = (needDate: string, offeredDates?: string[]) => {
+    if (!user || !activeCompany) return [];
+
+    const mockUsers = [
+      { id: "user-2", name: "María", availableDays: ["2026-02-15", "2026-02-17", "2026-02-24"] },
+      { id: "user-3", name: "Carlos", availableDays: ["2026-02-15", "2026-02-21"] },
+      { id: "user-4", name: "Ana", availableDays: ["2026-02-17", "2026-02-20"] },
+    ];
+
+    return mockUsers
+      .filter((u) => u.id !== user.id && u.availableDays.includes(needDate))
+      .map((u) => {
+        let matchScore = 1;
+
+        if (offeredDates) {
+          const needsYourDays = offeredDates.some((d) => {
+            return offers.some((o) => o.ownerId === u.id && o.date === d);
+          });
+          if (needsYourDays) matchScore += 2;
+        }
+
+        return {
+          userId: u.id,
+          userName: u.name,
+          availableDates: u.availableDays,
+          matchScore,
+        };
+      })
+      .sort((a, b) => b.matchScore - a.matchScore);
   };
 
   // Check if conversation is deleted for current user
@@ -615,6 +700,69 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return deletedConversations;
   };
 
+  const createCounterOffer = (
+    originalOfferId: string,
+    amount?: string,
+    offeredDates?: string[],
+    message: string = "Tengo una contrapropuesta"
+  ) => {
+    if (!user) return;
+
+    const originalOffer = offers.find((o) => o.id === originalOfferId);
+    if (!originalOffer) return;
+
+    const counterOffer: CounterOffer = {
+      id: `counter-${Date.now()}`,
+      originalOfferId,
+      fromUserId: user.id,
+      fromUserName: user.name,
+      toUserId: originalOffer.ownerId,
+      amount,
+      offeredDates,
+      message,
+      status: "pending",
+      createdAt: new Date().toISOString(),
+    };
+
+    setCounterOffers([...counterOffers, counterOffer]);
+
+    sendPrivateMessage(
+      originalOfferId,
+      originalOffer.ownerId,
+      user.name,
+      `📝 Nueva contrapropuesta: ${message}`
+    );
+  };
+
+  const acceptCounterOffer = (counterOfferId: string) => {
+    const counter = counterOffers.find((c) => c.id === counterOfferId);
+    if (!counter) return;
+
+    const updated = counterOffers.map((c) =>
+      c.id === counterOfferId ? { ...c, status: "accepted" as const } : c
+    );
+    setCounterOffers(updated);
+
+    updateOffer(counter.originalOfferId, {
+      amount: counter.amount,
+      offeredDates: counter.offeredDates,
+      status: "Aceptado",
+      acceptedByUserId: counter.fromUserId,
+      acceptedAt: new Date().toISOString(),
+    });
+  };
+
+  const rejectCounterOffer = (counterOfferId: string) => {
+    const updated = counterOffers.map((c) =>
+      c.id === counterOfferId ? { ...c, status: "rejected" as const } : c
+    );
+    setCounterOffers(updated);
+  };
+
+  const getCounterOffersByOfferId = (offerId: string): CounterOffer[] => {
+    return counterOffers.filter((c) => c.originalOfferId === offerId);
+  };
+
   // Legacy functions (keep for compatibility)
   const addMessage = (message: Omit<AppNegotiationMessage, "id" | "createdAt">) => {
     const newMessage: AppNegotiationMessage = {
@@ -655,6 +803,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     login,
     logout,
     updateUser,
+    setAvailableDays,
+    getAvailableDays,
     companies,
     activeCompany,
     setActiveCompany,
@@ -669,6 +819,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     deleteOffer,
     getOfferById,
     getOffersByDay,
+    getMyOffers,
+    acceptOffer,
+    rejectOffer,
+    findMatches,
+    counterOffers,
+    createCounterOffer,
+    acceptCounterOffer,
+    rejectCounterOffer,
+    getCounterOffersByOfferId,
     privateMessages,
     sendPrivateMessage,
     editPrivateMessage,

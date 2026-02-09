@@ -36,6 +36,8 @@ export type UserProfile = {
   notifications: NotificationPreferences;
   subscription: SubscriptionTier;
   subscriptionExpires?: string;
+  // Available days for exchange
+  availableDays?: string[]; // ISO strings de días libres disponibles para intercambio
 };
 
 export type OfferSummary = {
@@ -50,17 +52,24 @@ export type OfferSummary = {
   isPremium?: boolean;
 };
 
+export type OfferExchangeType = "simple" | "exchange" | "hybrid";
+
 export type Offer = {
   id: string;
   date: string;
   description: string;
-  amount?: string;
+  amount?: string; // Dinero ofrecido (ej: "20€")
   hideName: boolean;
   departmentId?: string;
   companyId: string;
-  status: "Publicado" | "En negociación" | "Aceptado";
+  status: "Publicado" | "En negociación" | "Aceptado" | "Rechazado";
   ownerId: string;
   isPremium?: boolean;
+  // Exchange fields
+  exchangeType: OfferExchangeType; // "simple" (solo dinero/favor), "exchange" (intercambio días), "hybrid" (ambos)
+  offeredDates?: string[]; // Días libres que ofreces a cambio (ISO strings)
+  acceptedByUserId?: string; // Usuario que aceptó la oferta
+  acceptedAt?: string; // Fecha de aceptación
 };
 
 export type NegotiationMessage = {
@@ -101,4 +110,18 @@ export type Conversation = {
   };
   lastMessage: PrivateMessage;
   unreadCount: number;
+};
+
+// Counter offer (contraoferta)
+export type CounterOffer = {
+  id: string;
+  originalOfferId: string;
+  fromUserId: string;
+  fromUserName: string;
+  toUserId: string; // Owner de la oferta original
+  amount?: string; // Nueva cantidad propuesta
+  offeredDates?: string[]; // Nuevos días ofrecidos
+  message: string;
+  status: "pending" | "accepted" | "rejected";
+  createdAt: string;
 };

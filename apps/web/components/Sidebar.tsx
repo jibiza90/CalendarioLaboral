@@ -46,6 +46,13 @@ export function Sidebar() {
           <span>{t("nav.calendar")}</span>
         </Link>
         <Link
+          href="/mis-ofertas"
+          className={`nav-item ${pathname === "/mis-ofertas" ? "active" : ""}`}
+        >
+          <span>📋</span>
+          <span>Mis Ofertas</span>
+        </Link>
+        <Link
           href="/mensajes"
           className={`nav-item ${pathname.startsWith("/mensajes") || pathname.startsWith("/ofertas") ? "active" : ""}`}
         >

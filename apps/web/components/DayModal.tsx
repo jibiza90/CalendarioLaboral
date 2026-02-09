@@ -65,6 +65,8 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
       status: "Publicado",
       ownerId: user.id,
       isPremium: user.subscription !== "free",
+      exchangeType: "simple",
+      offeredDates: [],
     });
     
     setShowForm(false);
