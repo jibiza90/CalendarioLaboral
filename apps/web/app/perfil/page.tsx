@@ -22,9 +22,10 @@ const basePlans = [
 ];
 
 export default function PerfilPage() {
-  const { user, isAuthenticated, logout, updateUser } = useApp();
+  const { user, isAuthenticated, logout, updateUser, setAvailableDays, getAvailableDays } = useApp();
   const { t } = useI18n();
-  const [activeTab, setActiveTab] = useState<"general" | "empresas" | "suscripcion">("general");
+  const [activeTab, setActiveTab] = useState<"general" | "empresas" | "disponibilidad" | "suscripcion">("general");
+  const [newAvailableDate, setNewAvailableDate] = useState("");
 
   const subscriptionPlans = useMemo(() => basePlans.map((plan) => ({
     ...plan,
@@ -36,6 +37,24 @@ export default function PerfilPage() {
     // Aquí iría la integración con Stripe/PayPal
     updateUser({ subscription: planId as any });
     showToast.success(t("profile.subscribe.toast", { plan: t(`profile.plan.${planId}.name`) }));
+  };
+
+  const handleAddAvailableDate = () => {
+    if (!newAvailableDate) return;
+    const currentDates = getAvailableDays();
+    if (!currentDates.includes(newAvailableDate)) {
+      setAvailableDays([...currentDates, newAvailableDate].sort());
+      showToast.success("Día libre añadido correctamente");
+      setNewAvailableDate("");
+    } else {
+      showToast.error("Este día ya está en tu lista");
+    }
+  };
+
+  const handleRemoveAvailableDate = (dateStr: string) => {
+    const currentDates = getAvailableDays();
+    setAvailableDays(currentDates.filter(d => d !== dateStr));
+    showToast.success("Día libre eliminado");
   };
 
   if (!isAuthenticated || !user) {
@@ -123,6 +142,7 @@ export default function PerfilPage() {
               <TabsList>
                 <TabsTrigger value="general">{t("profile.tabs.general")}</TabsTrigger>
                 <TabsTrigger value="empresas">{t("profile.tabs.companies")}</TabsTrigger>
+                <TabsTrigger value="disponibilidad">📅 Disponibilidad</TabsTrigger>
                 <TabsTrigger value="suscripcion">{t("profile.tabs.subscription")}</TabsTrigger>
               </TabsList>
 
@@ -151,6 +171,90 @@ export default function PerfilPage() {
               {/* Companies Tab */}
               <TabsContent value="empresas">
                 <CompanySelector />
+              </TabsContent>
+
+              {/* Availability Tab */}
+              <TabsContent value="disponibilidad">
+                <Card variant="elevated" padding="lg">
+                  <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-2">
+                    Días libres disponibles para intercambio
+                  </h3>
+                  <p className="text-[var(--color-text-secondary)] mb-6 text-sm">
+                    Añade tus días libres disponibles para que otros usuarios puedan ver si eres compatible
+                    para un intercambio de turnos. Cuantos más días añadas, más probabilidades de encontrar matches perfectos.
+                  </p>
+
+                  {/* Add Date Input */}
+                  <div className="flex gap-2 mb-6">
+                    <Input
+                      type="date"
+                      value={newAvailableDate}
+                      onChange={(e) => setNewAvailableDate(e.target.value)}
+                      placeholder="Selecciona una fecha"
+                      className="flex-1"
+                    />
+                    <Button
+                      variant="primary"
+                      onClick={handleAddAvailableDate}
+                      disabled={!newAvailableDate}
+                    >
+                      + Añadir
+                    </Button>
+                  </div>
+
+                  {/* Available Dates List */}
+                  {getAvailableDays().length > 0 ? (
+                    <div>
+                      <h4 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3">
+                        Tus días disponibles ({getAvailableDays().length})
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {getAvailableDays().map(dateStr => (
+                          <motion.div
+                            key={dateStr}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 rounded-lg border border-[var(--color-border-default)]"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm">
+                                {new Date(dateStr + "T00:00:00").getDate()}
+                              </div>
+                              <div>
+                                <div className="font-semibold text-[var(--color-text-primary)] text-sm">
+                                  {new Date(dateStr + "T00:00:00").toLocaleDateString("es-ES", {
+                                    weekday: "short",
+                                    day: "numeric",
+                                    month: "short"
+                                  })}
+                                </div>
+                                <div className="text-xs text-[var(--color-text-tertiary)]">
+                                  {new Date(dateStr + "T00:00:00").toLocaleDateString("es-ES", {
+                                    year: "numeric"
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => handleRemoveAvailableDate(dateStr)}
+                              className="p-2 text-[var(--color-error)] hover:bg-[var(--color-error)]/10 rounded-lg transition-colors"
+                              title="Eliminar"
+                            >
+                              ✕
+                            </button>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <EmptyState
+                      icon="📅"
+                      title="No tienes días disponibles"
+                      description="Añade tus días libres disponibles para empezar a recibir propuestas de intercambio"
+                    />
+                  )}
+                </Card>
               </TabsContent>
 
               {/* Subscription Tab */}
