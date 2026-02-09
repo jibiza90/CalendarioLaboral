@@ -20,6 +20,11 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
   const [showForm, setShowForm] = useState(false);
   const { t, lang } = useI18n();
 
+  const toLocalISODate = (d: Date) => {
+    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 10);
+  };
+
   const locale = useMemo(() => {
     const map: Record<string, string> = {
       es: "es-ES",
@@ -45,10 +50,12 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
   }) => {
     if (!activeCompany || !user) return;
     const dept = companyDepts.find((d) => d.id === data.departmentId);
-    
+    const isoDate = `${data.date}T00:00:00`;
+
     addOffer({
       ...data,
-      day: new Date(data.date).getDate(),
+      day: new Date(isoDate).getDate(),
+      date: isoDate,
       title: data.description.slice(0, 50) + (data.description.length > 50 ? "..." : ""),
       department: data.departmentId || "",
       departmentName: dept?.name || t("offer.department.general"),
@@ -107,7 +114,7 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
             </div>
             <OfferForm
               departments={companyDepts}
-              initialDate={date.toISOString().slice(0, 10)}
+              initialDate={toLocalISODate(date)}
               onSubmit={handlePublish}
               onCancel={() => setShowForm(false)}
             />

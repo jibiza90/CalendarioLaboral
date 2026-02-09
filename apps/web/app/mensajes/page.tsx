@@ -2,10 +2,16 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { useApp } from "../../contexts/AppContext";
 import { Sidebar } from "../../components/Sidebar";
 import Link from "next/link";
 import { useI18n } from "../../contexts/I18nContext";
+import { Card } from "../../src/components/ui/Card";
+import { Badge } from "../../src/components/ui/Badge";
+import { Button } from "../../src/components/ui/Button";
+import { EmptyState } from "../../src/components/ui/EmptyState";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter } from "../../src/components/ui/Dialog";
 
 const TrashIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -95,147 +101,208 @@ export default function MessagesPage() {
 
   if (!user) {
     return (
-      <div className="page-container">
+      <div className="app-container">
         <Sidebar />
         <main className="main-content">
-          <div className="loading-state">{t("common.loading")}</div>
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <div className="text-[var(--color-text-secondary)]">{t("common.loading")}</div>
+            </div>
+          </div>
         </main>
       </div>
     );
   }
 
   return (
-    <div className="page-container">
+    <div className="app-container">
       <Sidebar />
       <main className="main-content">
-        <div className="messages-page">
-          <div className="page-header">
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+          >
             <div>
-              <h1 className="page-title">{t("messages.title")}</h1>
-              <p className="page-subtitle">{t("messages.subtitle")}</p>
+              <h1 className="text-3xl font-bold text-[var(--color-text-primary)] mb-2">
+                {t("messages.title")}
+              </h1>
+              <p className="text-[var(--color-text-secondary)]">
+                {t("messages.subtitle")}
+              </p>
             </div>
             {deletedConversationsInfo.length > 0 && (
-              <button 
-                className="toggle-deleted-btn"
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setShowDeleted(!showDeleted)}
               >
-                {showDeleted 
-                  ? t("messages.toggle.hide") 
+                {showDeleted
+                  ? t("messages.toggle.hide")
                   : t("messages.toggle.show", { count: String(deletedConversationsInfo.length) })}
-              </button>
+              </Button>
             )}
-          </div>
+          </motion.div>
 
           {showDeleted && deletedConversationsInfo.length > 0 && (
-            <div className="deleted-section">
-              <h3>{t("messages.deleted.title")}</h3>
-              <div className="conversations-list deleted">
-                {deletedConversationsInfo.map((dc) => (
-                  <div key={`${dc.offerId}-${dc.otherUserId}`} className="conversation-card deleted">
-                    <div className="conversation-avatar deleted">{dc.otherUserName.charAt(0).toUpperCase()}</div>
-                    <div className="conversation-content">
-                      <div className="conversation-header">
-                        <div className="conversation-names">
-                          <span className="other-user-name">{dc.otherUserName}</span>
-                          <span className="offer-title">{dc.offerTitle}</span>
-                        </div>
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-3"
+            >
+              <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
+                {t("messages.deleted.title")}
+              </h3>
+              {deletedConversationsInfo.map((dc) => (
+                <Card key={`${dc.offerId}-${dc.otherUserId}`} variant="default" padding="md" className="opacity-60">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-gray-400 flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
+                      {dc.otherUserName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-[var(--color-text-primary)] truncate">
+                        {dc.otherUserName}
                       </div>
-                      <div className="conversation-actions">
-                        <button 
-                          className="restore-btn"
-                          onClick={() => handleRestore(dc.offerId, dc.otherUserId)}
-                        >
-                          <RestoreIcon />
-                          {t("messages.restore")}
-                        </button>
+                      <div className="text-sm text-[var(--color-text-secondary)] truncate">
+                        {dc.offerTitle}
                       </div>
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRestore(dc.offerId, dc.otherUserId)}
+                    >
+                      <RestoreIcon />
+                      <span className="ml-2">{t("messages.restore")}</span>
+                    </Button>
                   </div>
-                ))}
-              </div>
-            </div>
+                </Card>
+              ))}
+            </motion.div>
           )}
 
           {conversations.length === 0 && !showDeleted ? (
-            <div className="empty-state">
-              <div className="empty-icon">💬</div>
-              <h2>{t("messages.empty.title")}</h2>
-              <p>{t("messages.empty.desc")}</p>
-              <Link href="/calendario" className="btn-primary">
-                {t("messages.empty.cta")}
-              </Link>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card variant="elevated" padding="none">
+                <EmptyState
+                  icon="💬"
+                  title={t("messages.empty.title")}
+                  description={t("messages.empty.desc")}
+                  action={{
+                    label: t("messages.empty.cta"),
+                    onClick: () => router.push("/calendario")
+                  }}
+                />
+              </Card>
+            </motion.div>
           ) : (
-            <div className="conversations-list">
-              {conversations.map((conv) => (
-                <div key={`${conv.offerId}-${conv.otherUser.id}`} className="conversation-card-wrapper">
-                  <Link
-                    href={`/ofertas/${conv.offerId}`}
-                    className="conversation-card"
-                  >
-                    <div className="conversation-avatar">
-                      {conv.otherUser.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="conversation-content">
-                      <div className="conversation-header">
-                        <div className="conversation-names">
-                          <span className="other-user-name">{conv.otherUser.name}</span>
-                          <span className="offer-title">{conv.offerTitle}</span>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="space-y-3"
+            >
+              {conversations.map((conv, index) => (
+                <motion.div
+                  key={`${conv.offerId}-${conv.otherUser.id}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + index * 0.05 }}
+                >
+                  <Card variant="interactive" padding="none" className="overflow-hidden hover:shadow-lg transition-shadow">
+                    <div className="flex items-start gap-4 p-4">
+                      <Link href={`/ofertas/${conv.offerId}`} className="flex items-start gap-4 flex-1 min-w-0">
+                        {/* Avatar */}
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
+                          {conv.otherUser.name.charAt(0).toUpperCase()}
                         </div>
-                        <span className="conversation-time">{formatDate(conv.lastMessage.createdAt)}</span>
-                      </div>
-                      <div className="conversation-preview">
-                        <p className={conv.unreadCount > 0 ? "unread" : ""}>
-                          {conv.lastMessage.senderId === user.id ? (
-                            <span className="you-prefix">{t("messages.you")}</span>
-                          ) : null}
-                          {conv.lastMessage.text}
-                        </p>
-                        {conv.unreadCount > 0 && (
-                          <span className="unread-badge">{conv.unreadCount}</span>
-                        )}
-                      </div>
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          {/* Header */}
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <div className="min-w-0 flex-1">
+                              <div className="font-semibold text-[var(--color-text-primary)] truncate">
+                                {conv.otherUser.name}
+                              </div>
+                              <div className="text-sm text-[var(--color-text-secondary)] truncate">
+                                {conv.offerTitle}
+                              </div>
+                            </div>
+                            <span className="text-xs text-[var(--color-text-tertiary)] whitespace-nowrap">
+                              {formatDate(conv.lastMessage.createdAt)}
+                            </span>
+                          </div>
+
+                          {/* Preview */}
+                          <div className="flex items-center gap-2">
+                            <p className={`text-sm flex-1 truncate ${conv.unreadCount > 0 ? 'font-semibold text-[var(--color-text-primary)]' : 'text-[var(--color-text-secondary)]'}`}>
+                              {conv.lastMessage.senderId === user.id && (
+                                <span className="text-[var(--color-text-tertiary)]">{t("messages.you")} </span>
+                              )}
+                              {conv.lastMessage.text}
+                            </p>
+                            {conv.unreadCount > 0 && (
+                              <Badge variant="primary" size="sm">
+                                {conv.unreadCount}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+
+                      {/* Delete Button */}
+                      <button
+                        className="p-2 text-[var(--color-text-tertiary)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-bg)] rounded-lg transition-colors flex-shrink-0"
+                        onClick={() => setConfirmDelete({
+                          offerId: conv.offerId,
+                          otherUserId: conv.otherUser.id,
+                          otherUserName: conv.otherUser.name
+                        })}
+                        title={t("messages.delete.tooltip")}
+                      >
+                        <TrashIcon />
+                      </button>
                     </div>
-                  </Link>
-                  <button 
-                    className="delete-conv-btn"
-                    onClick={() => setConfirmDelete({ 
-                      offerId: conv.offerId, 
-                      otherUserId: conv.otherUser.id,
-                      otherUserName: conv.otherUser.name 
-                    })}
-                    title={t("messages.delete.tooltip")}
-                  >
-                    <TrashIcon />
-                  </button>
-                </div>
+                  </Card>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
 
         {/* Delete Confirmation Modal */}
-        {confirmDelete && (
-          <div className="modal-overlay" onClick={() => setConfirmDelete(null)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <h3>{t("messages.delete.title")}</h3>
-              <p>
-                {t("messages.delete.body", { name: confirmDelete.otherUserName })}
-              </p>
-              <div className="modal-actions">
-                <button className="btn btn-secondary" onClick={() => setConfirmDelete(null)}>
-                  {t("messages.delete.cancel")}
-                </button>
-                <button 
-                  className="btn btn-danger" 
-                  onClick={() => handleDelete(confirmDelete.offerId, confirmDelete.otherUserId)}
-                >
-                  {t("messages.delete.confirm")}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <Dialog open={!!confirmDelete} onOpenChange={(open) => !open && setConfirmDelete(null)}>
+          <DialogContent maxWidth="sm">
+            <DialogHeader>
+              <DialogTitle>{t("messages.delete.title")}</DialogTitle>
+            </DialogHeader>
+            <DialogBody>
+              <DialogDescription>
+                {confirmDelete && t("messages.delete.body", { name: confirmDelete.otherUserName })}
+              </DialogDescription>
+            </DialogBody>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setConfirmDelete(null)}>
+                {t("messages.delete.cancel")}
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => confirmDelete && handleDelete(confirmDelete.offerId, confirmDelete.otherUserId)}
+              >
+                {t("messages.delete.confirm")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

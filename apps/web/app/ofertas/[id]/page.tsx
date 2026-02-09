@@ -337,11 +337,11 @@ export default function OfferDetailPage() {
                   <div className="company-details">
                     <div className="company-detail-row">
                       <span className="detail-label">{t("offer.company.code")}</span>
-                      <code className="company-code">{company.code}</code>
+                      <code className="company-code">{company.inviteCode}</code>
                     </div>
                     <div className="company-detail-row">
                       <span className="detail-label">{t("offer.company.province")}</span>
-                      <span>{company.province}</span>
+                      <span>{company.location}</span>
                     </div>
                   </div>
                 </div>

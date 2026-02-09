@@ -3,8 +3,14 @@ export type OfferType = "Nueva" | "Alta demanda" | "Aceptación rápida";
 export type Company = {
   id: string;
   name: string;
-  province: string;
-  code: string;
+  location: string; // "Madrid, España"
+  category: string; // "Restauración", "Retail", "Salud", etc.
+  inviteCode: string; // "RES123456" - único código para unirse
+  inviteLink: string; // "turnswap.com/join/RES123456"
+  isPrivate: boolean; // Si es true, NO aparece en ninguna búsqueda
+  createdBy: string; // userId del creador
+  createdAt: string;
+  memberCount: number;
 };
 
 export type Department = {

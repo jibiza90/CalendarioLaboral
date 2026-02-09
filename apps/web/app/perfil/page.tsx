@@ -1,11 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { useApp } from "../../contexts/AppContext";
 import { Sidebar } from "../../components/Sidebar";
 import { CompanySelector } from "../../components/CompanySelector";
 import { getInitials } from "../../lib/utils";
 import { useI18n } from "../../contexts/I18nContext";
+import { Card } from "../../src/components/ui/Card";
+import { Badge } from "../../src/components/ui/Badge";
+import { Button } from "../../src/components/ui/Button";
+import { Input } from "../../src/components/ui/Input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../src/components/ui/Tabs";
+import { EmptyState } from "../../src/components/ui/EmptyState";
+import { showToast } from "../../src/components/ui/Toast";
 
 const basePlans = [
   { id: "free", price: 0, features: ["profile.plan.free.f1", "profile.plan.free.f2", "profile.plan.free.f3"] },
@@ -27,7 +35,7 @@ export default function PerfilPage() {
   const handleSubscribe = (planId: string) => {
     // Aquí iría la integración con Stripe/PayPal
     updateUser({ subscription: planId as any });
-    alert(t("profile.subscribe.toast", { plan: t(`profile.plan.${planId}.name`) }));
+    showToast.success(t("profile.subscribe.toast", { plan: t(`profile.plan.${planId}.name`) }));
   };
 
   if (!isAuthenticated || !user) {
@@ -35,11 +43,13 @@ export default function PerfilPage() {
       <div className="app-container">
         <Sidebar />
         <main className="main-content">
-          <div className="empty-state">
-            <div className="empty-icon">🔐</div>
-            <div className="empty-title">{t("profile.login.title")}</div>
-            <div className="empty-desc">{t("profile.login.desc")}</div>
-          </div>
+          <Card variant="elevated" padding="none">
+            <EmptyState
+              icon="🔐"
+              title={t("profile.login.title")}
+              description={t("profile.login.desc")}
+            />
+          </Card>
         </main>
       </div>
     );
@@ -52,126 +62,173 @@ export default function PerfilPage() {
       <Sidebar />
 
       <main className="main-content">
-        <div className="page-header">
-          <div>
-            <h1 className="page-title">{t("profile.title")}</h1>
-            <p className="page-subtitle">{t("profile.subtitle")}</p>
-          </div>
-        </div>
+        <div className="max-w-5xl mx-auto space-y-6">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <h1 className="text-3xl font-bold text-[var(--color-text-primary)] mb-2">
+              {t("profile.title")}
+            </h1>
+            <p className="text-[var(--color-text-secondary)]">
+              {t("profile.subtitle")}
+            </p>
+          </motion.div>
 
-        {/* User Card */}
-        <div className="card" style={{ marginBottom: "24px", display: "flex", alignItems: "center", gap: "16px" }}>
-          <div className="user-avatar" style={{ width: "64px", height: "64px", fontSize: "24px" }}>
-            {getInitials(user.name)}
-          </div>
-          <div style={{ flex: 1 }}>
-            <h2 style={{ fontSize: "20px", fontWeight: 700 }}>{user.name}</h2>
-            <p style={{ color: "#6b7280" }}>{user.email}</p>
-            <div style={{ marginTop: "8px", display: "flex", gap: "8px", alignItems: "center" }}>
-              <span
-                style={{
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  padding: "4px 12px",
-                  borderRadius: "20px",
-                  background: user.subscription === "pro" || user.subscription === "business" ? "rgba(139,92,246,0.15)" : "rgba(255,255,255,0.08)",
-                  color: "#f8fafc",
-                }}
-              >
-                {currentPlan.name}
-              </span>
-              {(user.subscription === "pro" || user.subscription === "business") && <span>⭐</span>}
-            </div>
-          </div>
-          <button className="btn btn-secondary" onClick={logout}>
-            {t("profile.logout")}
-          </button>
-        </div>
-
-        {/* Tabs */}
-        <div style={{ display: "flex", gap: "8px", marginBottom: "24px" }}>
-          {[
-            { id: "general", label: t("profile.tabs.general") },
-            { id: "empresas", label: t("profile.tabs.companies") },
-            { id: "suscripcion", label: t("profile.tabs.subscription") },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              className={`btn ${activeTab === tab.id ? "btn-primary" : "btn-secondary"}`}
-              onClick={() => setActiveTab(tab.id as any)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === "general" && (
-          <div className="card">
-            <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}>{t("profile.personal.title")}</h3>
-            <div style={{ display: "grid", gap: "16px" }}>
-              <div>
-                <label className="form-label">{t("profile.personal.name")}</label>
-                <input type="text" className="form-input" value={user.name} readOnly />
-              </div>
-              <div>
-                <label className="form-label">Email</label>
-                <input type="email" className="form-input" value={user.email} readOnly />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "empresas" && <CompanySelector />}
-
-        {activeTab === "suscripcion" && (
-          <div>
-            <div style={{ marginBottom: "24px" }}>
-              <h3 style={{ fontSize: "18px", fontWeight: 700 }}>{t("profile.subscription.current", { plan: currentPlan.name })}</h3>
-              <p style={{ color: "#6b7280" }}>
-                {currentPlan.price === 0
-                  ? t("profile.subscription.free")
-                  : t("profile.subscription.paid", { price: String(currentPlan.price) })}
-              </p>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px" }}>
-              {subscriptionPlans.map((plan) => (
-                <div
-                  key={plan.id}
-                  className={`subscription-card ${plan.id !== "free" ? "premium" : ""} ${
-                    user.subscription === plan.id ? "selected" : ""
-                  }`}
-                  style={user.subscription === plan.id ? { borderColor: "#4f46e5", boxShadow: "0 0 0 3px rgba(79, 70, 229, 0.1)" } : {}}
-                >
-                  <div className="subscription-name">{plan.name}</div>
-                  <div className="subscription-price">
-                    €{plan.price}
-                    <span>/mes</span>
-                  </div>
-                  <ul className="subscription-features">
-                    {plan.features.map((feature, i) => (
-                      <li key={i}>{feature}</li>
-                    ))}
-                  </ul>
-                  {user.subscription === plan.id ? (
-                    <button className="btn btn-secondary" style={{ width: "100%" }} disabled>
-                      {t("profile.subscription.currentButton")}
-                    </button>
-                  ) : (
-                    <button
-                      className={`btn ${plan.id === "free" ? "btn-secondary" : "btn-premium"}`}
-                      style={{ width: "100%" }}
-                      onClick={() => handleSubscribe(plan.id)}
-                    >
-                      {plan.price === 0 ? t("profile.subscription.select") : t("profile.subscription.subscribe")}
-                    </button>
-                  )}
+          {/* User Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <Card variant="elevated" padding="lg">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-bold text-2xl flex-shrink-0">
+                  {getInitials(user.name)}
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-xl font-bold text-[var(--color-text-primary)] mb-1">
+                    {user.name}
+                  </h2>
+                  <p className="text-[var(--color-text-secondary)] mb-2">
+                    {user.email}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant={user.subscription === "pro" || user.subscription === "business" ? "primary" : "default"}
+                      size="sm"
+                    >
+                      {currentPlan.name}
+                    </Badge>
+                    {(user.subscription === "pro" || user.subscription === "business") && (
+                      <span className="text-xl">⭐</span>
+                    )}
+                  </div>
+                </div>
+                <Button variant="secondary" onClick={logout} className="w-full sm:w-auto">
+                  {t("profile.logout")}
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Tabs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Tabs defaultValue={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
+              <TabsList>
+                <TabsTrigger value="general">{t("profile.tabs.general")}</TabsTrigger>
+                <TabsTrigger value="empresas">{t("profile.tabs.companies")}</TabsTrigger>
+                <TabsTrigger value="suscripcion">{t("profile.tabs.subscription")}</TabsTrigger>
+              </TabsList>
+
+              {/* General Tab */}
+              <TabsContent value="general">
+                <Card variant="elevated" padding="lg">
+                  <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-4">
+                    {t("profile.personal.title")}
+                  </h3>
+                  <div className="space-y-4">
+                    <Input
+                      label={t("profile.personal.name")}
+                      value={user.name}
+                      readOnly
+                    />
+                    <Input
+                      label="Email"
+                      type="email"
+                      value={user.email}
+                      readOnly
+                    />
+                  </div>
+                </Card>
+              </TabsContent>
+
+              {/* Companies Tab */}
+              <TabsContent value="empresas">
+                <CompanySelector />
+              </TabsContent>
+
+              {/* Subscription Tab */}
+              <TabsContent value="suscripcion">
+                <div className="space-y-6">
+                  {/* Current Plan Info */}
+                  <Card variant="elevated" padding="lg" className="bg-gradient-to-br from-purple-500/10 to-cyan-500/10">
+                    <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-2">
+                      {t("profile.subscription.current", { plan: currentPlan.name })}
+                    </h3>
+                    <p className="text-[var(--color-text-secondary)]">
+                      {currentPlan.price === 0
+                        ? t("profile.subscription.free")
+                        : t("profile.subscription.paid", { price: String(currentPlan.price) })}
+                    </p>
+                  </Card>
+
+                  {/* Plans Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {subscriptionPlans.map((plan, index) => (
+                      <motion.div
+                        key={plan.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                      >
+                        <Card
+                          variant={user.subscription === plan.id ? "elevated" : "default"}
+                          padding="lg"
+                          className={`h-full flex flex-col ${
+                            user.subscription === plan.id
+                              ? "ring-2 ring-[var(--color-brand-primary)] shadow-lg"
+                              : ""
+                          } ${plan.id !== "free" ? "bg-gradient-to-br from-purple-500/5 to-cyan-500/5" : ""}`}
+                        >
+                          <div className="flex-1">
+                            <h4 className="text-xl font-bold text-[var(--color-text-primary)] mb-2">
+                              {plan.name}
+                            </h4>
+                            <div className="mb-4">
+                              <span className="text-3xl font-bold text-[var(--color-text-primary)]">
+                                €{plan.price}
+                              </span>
+                              <span className="text-[var(--color-text-secondary)]">/mes</span>
+                            </div>
+                            <ul className="space-y-2 mb-6">
+                              {plan.features.map((feature, i) => (
+                                <li key={i} className="flex items-start gap-2 text-sm text-[var(--color-text-secondary)]">
+                                  <span className="text-[var(--color-success)] mt-0.5">✓</span>
+                                  <span>{feature}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          {user.subscription === plan.id ? (
+                            <Button variant="secondary" fullWidth disabled>
+                              {t("profile.subscription.currentButton")}
+                            </Button>
+                          ) : (
+                            <Button
+                              variant={plan.id === "free" ? "ghost" : "primary"}
+                              fullWidth
+                              onClick={() => handleSubscribe(plan.id)}
+                            >
+                              {plan.price === 0
+                                ? t("profile.subscription.select")
+                                : t("profile.subscription.subscribe")}
+                            </Button>
+                          )}
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </motion.div>
+        </div>
       </main>
     </div>
   );
