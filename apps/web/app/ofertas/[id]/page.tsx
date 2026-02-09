@@ -72,6 +72,12 @@ export default function OfferDetailPage() {
     editPrivateMessage,
     deleteConversation,
     addToast,
+    acceptOffer,
+    rejectOffer,
+    createCounterOffer,
+    getCounterOffersByOfferId,
+    acceptCounterOffer,
+    rejectCounterOffer,
   } = useApp();
   const { t, lang } = useI18n();
   const locale = useMemo(() => {
@@ -93,6 +99,10 @@ export default function OfferDetailPage() {
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [remainingTimes, setRemainingTimes] = useState<Record<string, number>>({});
+  const [showCounterOfferForm, setShowCounterOfferForm] = useState(false);
+  const [counterAmount, setCounterAmount] = useState("");
+  const [counterDates, setCounterDates] = useState<string[]>([]);
+  const [counterMessage, setCounterMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const offer = useMemo(() => getOfferById(offerId), [offerId, getOfferById]);
@@ -222,6 +232,47 @@ export default function OfferDetailPage() {
     router.push("/calendario");
   };
 
+  const handleAcceptOffer = () => {
+    if (!offer || !user) return;
+    acceptOffer(offerId);
+    addToast({ type: "success", message: "¡Oferta aceptada! El propietario recibirá una notificación." });
+  };
+
+  const handleRejectOffer = () => {
+    if (!offer || !user) return;
+    rejectOffer(offerId);
+    addToast({ type: "info", message: "Oferta rechazada" });
+  };
+
+  const handleSubmitCounterOffer = () => {
+    if (!offer || !user) return;
+    if (!counterMessage.trim() && !counterAmount && counterDates.length === 0) {
+      addToast({ type: "error", message: "Debes proponer algo en la contraoferta" });
+      return;
+    }
+    createCounterOffer(
+      offerId,
+      counterAmount || undefined,
+      counterDates.length > 0 ? counterDates : undefined,
+      counterMessage.trim() || undefined
+    );
+    addToast({ type: "success", message: "Contraoferta enviada" });
+    setShowCounterOfferForm(false);
+    setCounterAmount("");
+    setCounterDates([]);
+    setCounterMessage("");
+  };
+
+  const handleAddCounterDate = (dateStr: string) => {
+    if (!counterDates.includes(dateStr)) {
+      setCounterDates([...counterDates, dateStr]);
+    }
+  };
+
+  const handleRemoveCounterDate = (dateStr: string) => {
+    setCounterDates(counterDates.filter(d => d !== dateStr));
+  };
+
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
@@ -346,6 +397,257 @@ export default function OfferDetailPage() {
                           month: "short"
                         })}
                       </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons (for non-owners) */}
+              {!isOwner && offer.status === "Publicado" && (
+                <div style={{ marginTop: "24px", paddingTop: "24px", borderTop: "1px solid var(--color-border-default)" }}>
+                  <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px" }}>Acciones</h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                    {!showCounterOfferForm ? (
+                      <>
+                        <button
+                          className="btn btn-primary"
+                          onClick={handleAcceptOffer}
+                          style={{ width: "100%" }}
+                        >
+                          ✓ Aceptar oferta
+                        </button>
+                        <button
+                          className="btn btn-secondary"
+                          onClick={() => setShowCounterOfferForm(true)}
+                          style={{ width: "100%" }}
+                        >
+                          💬 Hacer contraoferta
+                        </button>
+                        <button
+                          className="btn btn-ghost"
+                          onClick={handleRejectOffer}
+                          style={{ width: "100%" }}
+                        >
+                          ✕ No me interesa
+                        </button>
+                      </>
+                    ) : (
+                      <div style={{
+                        padding: "16px",
+                        background: "var(--color-bg-secondary)",
+                        borderRadius: "12px",
+                        border: "1px solid var(--color-border-default)"
+                      }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                          <h4 style={{ fontSize: "15px", fontWeight: 600 }}>Crear contraoferta</h4>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            onClick={() => {
+                              setShowCounterOfferForm(false);
+                              setCounterAmount("");
+                              setCounterDates([]);
+                              setCounterMessage("");
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+
+                        {/* Counter Amount */}
+                        <div style={{ marginBottom: "12px" }}>
+                          <label style={{ display: "block", fontSize: "13px", fontWeight: 500, marginBottom: "6px", color: "var(--color-text-secondary)" }}>
+                            Dinero que ofreces (opcional)
+                          </label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            placeholder="Ej: 30€"
+                            value={counterAmount}
+                            onChange={(e) => setCounterAmount(e.target.value)}
+                          />
+                        </div>
+
+                        {/* Counter Dates */}
+                        <div style={{ marginBottom: "12px" }}>
+                          <label style={{ display: "block", fontSize: "13px", fontWeight: 500, marginBottom: "6px", color: "var(--color-text-secondary)" }}>
+                            Días libres que ofreces (opcional)
+                          </label>
+                          <input
+                            type="date"
+                            className="form-input"
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                handleAddCounterDate(e.target.value);
+                                e.target.value = "";
+                              }
+                            }}
+                          />
+                          {counterDates.length > 0 && (
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "8px" }}>
+                              {counterDates.map(dateStr => (
+                                <span
+                                  key={dateStr}
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                    padding: "4px 10px",
+                                    background: "#e0f2fe",
+                                    color: "#0369a1",
+                                    borderRadius: "16px",
+                                    fontSize: "12px",
+                                    fontWeight: 500
+                                  }}
+                                >
+                                  {new Date(dateStr + "T00:00:00").toLocaleDateString(locale, {
+                                    day: "numeric",
+                                    month: "short"
+                                  })}
+                                  <button
+                                    onClick={() => handleRemoveCounterDate(dateStr)}
+                                    style={{
+                                      background: "none",
+                                      border: "none",
+                                      cursor: "pointer",
+                                      padding: "0",
+                                      color: "#0369a1"
+                                    }}
+                                  >
+                                    ✕
+                                  </button>
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Counter Message */}
+                        <div style={{ marginBottom: "16px" }}>
+                          <label style={{ display: "block", fontSize: "13px", fontWeight: 500, marginBottom: "6px", color: "var(--color-text-secondary)" }}>
+                            Mensaje
+                          </label>
+                          <textarea
+                            className="form-textarea"
+                            rows={3}
+                            placeholder="Explica tu propuesta..."
+                            value={counterMessage}
+                            onChange={(e) => setCounterMessage(e.target.value)}
+                          />
+                        </div>
+
+                        <button
+                          className="btn btn-primary"
+                          onClick={handleSubmitCounterOffer}
+                          style={{ width: "100%" }}
+                        >
+                          Enviar contraoferta
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Counter Offers Received (for owner) */}
+              {isOwner && getCounterOffersByOfferId(offerId).length > 0 && (
+                <div style={{ marginTop: "24px", paddingTop: "24px", borderTop: "1px solid var(--color-border-default)" }}>
+                  <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px" }}>
+                    Contraofertas recibidas ({getCounterOffersByOfferId(offerId).length})
+                  </h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                    {getCounterOffersByOfferId(offerId).map(counterOffer => (
+                      <div
+                        key={counterOffer.id}
+                        style={{
+                          padding: "16px",
+                          background: counterOffer.status === "pending" ? "var(--color-bg-secondary)" : "var(--color-bg-tertiary)",
+                          borderRadius: "12px",
+                          border: "1px solid var(--color-border-default)"
+                        }}
+                      >
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "12px" }}>
+                          <div>
+                            <div style={{ fontSize: "14px", fontWeight: 600, marginBottom: "4px" }}>
+                              {counterOffer.fromUserName}
+                            </div>
+                            <div style={{ fontSize: "12px", color: "var(--color-text-tertiary)" }}>
+                              {new Date(counterOffer.createdAt).toLocaleDateString(locale, {
+                                day: "numeric",
+                                month: "short",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })}
+                            </div>
+                          </div>
+                          <span
+                            style={{
+                              padding: "4px 8px",
+                              borderRadius: "12px",
+                              fontSize: "11px",
+                              fontWeight: 600,
+                              background: counterOffer.status === "accepted" ? "#dcfce7" :
+                                         counterOffer.status === "rejected" ? "#fee2e2" : "#e0f2fe",
+                              color: counterOffer.status === "accepted" ? "#16a34a" :
+                                     counterOffer.status === "rejected" ? "#dc2626" : "#0369a1"
+                            }}
+                          >
+                            {counterOffer.status === "accepted" && "Aceptada"}
+                            {counterOffer.status === "rejected" && "Rechazada"}
+                            {counterOffer.status === "pending" && "Pendiente"}
+                          </span>
+                        </div>
+
+                        {counterOffer.amount && (
+                          <div style={{ marginBottom: "8px", fontSize: "13px" }}>
+                            <span style={{ color: "var(--color-text-tertiary)" }}>Ofrece: </span>
+                            <span style={{ fontWeight: 600 }}>{counterOffer.amount}</span>
+                          </div>
+                        )}
+
+                        {counterOffer.offeredDates && counterOffer.offeredDates.length > 0 && (
+                          <div style={{ marginBottom: "8px", fontSize: "13px" }}>
+                            <span style={{ color: "var(--color-text-tertiary)" }}>Días: </span>
+                            {counterOffer.offeredDates.map((dateStr, i) => (
+                              <span key={dateStr}>
+                                {new Date(dateStr + "T00:00:00").toLocaleDateString(locale, {
+                                  day: "numeric",
+                                  month: "short"
+                                })}
+                                {i < counterOffer.offeredDates!.length - 1 && ", "}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        <div style={{ fontSize: "13px", color: "var(--color-text-secondary)", marginBottom: "12px" }}>
+                          {counterOffer.message}
+                        </div>
+
+                        {counterOffer.status === "pending" && (
+                          <div style={{ display: "flex", gap: "8px" }}>
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={() => {
+                                acceptCounterOffer(counterOffer.id);
+                                addToast({ type: "success", message: "Contraoferta aceptada" });
+                              }}
+                              style={{ flex: 1 }}
+                            >
+                              ✓ Aceptar
+                            </button>
+                            <button
+                              className="btn btn-ghost btn-sm"
+                              onClick={() => {
+                                rejectCounterOffer(counterOffer.id);
+                                addToast({ type: "info", message: "Contraoferta rechazada" });
+                              }}
+                              style={{ flex: 1 }}
+                            >
+                              ✕ Rechazar
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
