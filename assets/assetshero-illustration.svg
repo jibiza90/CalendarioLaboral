@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <defs>
+    <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#8fd3ff"/>
+      <stop offset="0.55" stop-color="#2a7de1"/>
+      <stop offset="1" stop-color="#1b62b9"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" x2="1">
+      <stop offset="0" stop-color="#eaf3ff"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#020617" flood-opacity=".16"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="900" fill="#ffffff"/>
+  <circle cx="220" cy="210" r="220" fill="#eaf3ff"/>
+  <circle cx="980" cy="170" r="260" fill="#f1eaff"/>
+  <circle cx="820" cy="760" r="260" fill="#eaf3ff"/>
+
+  <!-- Main card -->
+  <g filter="url(#shadow)">
+    <rect x="180" y="170" rx="28" ry="28" width="840" height="520" fill="url(#g2)" stroke="#e2e8f0"/>
+  </g>
+
+  <!-- Header -->
+  <rect x="230" y="220" rx="16" ry="16" width="520" height="56" fill="#ffffff" stroke="#e2e8f0"/>
+  <circle cx="260" cy="248" r="14" fill="url(#g1)"/>
+  <rect x="288" y="238" rx="8" width="170" height="18" fill="#0f172a" opacity=".08"/>
+  <rect x="288" y="260" rx="8" width="120" height="14" fill="#0f172a" opacity=".06"/>
+
+  <!-- Swap flow -->
+  <g>
+    <rect x="230" y="310" rx="22" width="360" height="150" fill="#ffffff" stroke="#e2e8f0"/>
+    <rect x="260" y="345" rx="10" width="200" height="18" fill="#0f172a" opacity=".09"/>
+    <rect x="260" y="375" rx="10" width="280" height="14" fill="#0f172a" opacity=".06"/>
+    <rect x="260" y="400" rx="10" width="240" height="14" fill="#0f172a" opacity=".06"/>
+    <rect x="260" y="430" rx="999" width="150" height="34" fill="#2a7de1" opacity=".95"/>
+    <rect x="420" y="430" rx="999" width="140" height="34" fill="#eaf3ff" stroke="#d9eeff"/>
+  </g>
+
+  <g>
+    <rect x="640" y="310" rx="22" width="330" height="150" fill="#ffffff" stroke="#e2e8f0"/>
+    <rect x="670" y="345" rx="10" width="200" height="18" fill="#0f172a" opacity=".09"/>
+    <rect x="670" y="375" rx="10" width="260" height="14" fill="#0f172a" opacity=".06"/>
+    <rect x="670" y="400" rx="10" width="220" height="14" fill="#0f172a" opacity=".06"/>
+    <g>
+      <circle cx="705" cy="435" r="16" fill="#8fd3ff"/>
+      <circle cx="745" cy="435" r="16" fill="#2a7de1"/>
+      <circle cx="785" cy="435" r="16" fill="#1b62b9"/>
+      <rect x="820" y="422" rx="999" width="120" height="26" fill="#eaf3ff" stroke="#d9eeff"/>
+    </g>
+  </g>
+
+  <!-- Connection arrow -->
+  <path d="M 590 385 C 615 385, 615 385, 640 385" stroke="url(#g1)" stroke-width="10" stroke-linecap="round"/>
+  <path d="M 628 370 L 650 385 L 628 400" fill="none" stroke="url(#g1)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Bottom small cards -->
+  <g>
+    <rect x="230" y="485" rx="22" width="740" height="170" fill="#ffffff" stroke="#e2e8f0"/>
+    <rect x="260" y="520" rx="10" width="220" height="18" fill="#0f172a" opacity=".09"/>
+    <rect x="260" y="548" rx="10" width="500" height="14" fill="#0f172a" opacity=".06"/>
+
+    <rect x="260" y="585" rx="18" width="210" height="46" fill="#eaf3ff" stroke="#d9eeff"/>
+    <circle cx="290" cy="608" r="12" fill="#2a7de1"/>
+    <rect x="312" y="598" rx="8" width="140" height="14" fill="#0f172a" opacity=".08"/>
+    <rect x="312" y="616" rx="8" width="110" height="12" fill="#0f172a" opacity=".06"/>
+
+    <rect x="490" y="585" rx="18" width="210" height="46" fill="#ffffff" stroke="#e2e8f0"/>
+    <circle cx="520" cy="608" r="12" fill="#8fd3ff"/>
+    <rect x="542" y="598" rx="8" width="140" height="14" fill="#0f172a" opacity=".08"/>
+    <rect x="542" y="616" rx="8" width="110" height="12" fill="#0f172a" opacity=".06"/>
+
+    <rect x="720" y="585" rx="18" width="250" height="46" fill="#2a7de1"/>
+    <rect x="750" y="600" rx="10" width="170" height="16" fill="#ffffff" opacity=".9"/>
+  </g>
+
+  <!-- Decorative badge -->
+  <g filter="url(#shadow)">
+    <rect x="860" y="120" rx="18" width="250" height="84" fill="#ffffff" stroke="#e2e8f0"/>
+    <circle cx="902" cy="162" r="18" fill="url(#g1)"/>
+    <rect x="930" y="148" rx="8" width="140" height="14" fill="#0f172a" opacity=".08"/>
+    <rect x="930" y="168" rx="8" width="110" height="12" fill="#0f172a" opacity=".06"/>
+  </g>
+</svg>

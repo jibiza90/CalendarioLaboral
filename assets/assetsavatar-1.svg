@@ -1,0 +1,14 @@
+svg xmlns=httpwww.w3.org2000svg width=240 height=240 viewBox=0 0 240 240
+  defs
+    linearGradient id=p x1=0 x2=1
+      stop offset=0 stop-color=#8fd3ff
+      stop offset=1 stop-color=#2a7de1
+    linearGradient
+  defs
+  circle cx=120 cy=120 r=118 fill=#ffffff stroke=#e2e8f0
+  circle cx=120 cy=98 r=44 fill=url(#p)
+  rect x=54 y=150 rx=40 width=132 height=64 fill=#eaf3ff stroke=#d9eeff
+  circle cx=104 cy=92 r=6 fill=#ffffff opacity=.9
+  circle cx=136 cy=92 r=6 fill=#ffffff opacity=.9
+  path d=M105 112 C115 122, 125 122, 135 112 fill=none stroke=#ffffff stroke-width=6 stroke-linecap=round
+svg

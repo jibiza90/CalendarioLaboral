@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="pri" x1="0" x2="1">
+      <stop offset="0" stop-color="#8fd3ff"/>
+      <stop offset="1" stop-color="#2a7de1"/>
+    </linearGradient>
+    <filter id="s" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#020617" flood-opacity=".14"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="800" fill="#f6f9fc"/>
+  <g filter="url(#s)">
+    <rect x="160" y="90" rx="26" width="880" height="620" fill="#ffffff" stroke="#e2e8f0"/>
+  </g>
+
+  <rect x="160" y="90" rx="26" width="880" height="110" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="210" y="135" rx="10" width="240" height="20" fill="#0f172a" opacity=".07"/>
+  <rect x="820" y="130" rx="999" width="170" height="30" fill="#eaf3ff" stroke="#d9eeff"/>
+  <circle cx="770" cy="145" r="16" fill="url(#pri)"/>
+
+  <!-- calendar grid -->
+  <g>
+    <rect x="210" y="230" rx="18" width="780" height="440" fill="#ffffff" stroke="#e2e8f0"/>
+    <!-- columns lines -->
+    <g opacity=".55" stroke="#e2e8f0">
+      <line x1="322" y1="260" x2="322" y2="650"/>
+      <line x1="434" y1="260" x2="434" y2="650"/>
+      <line x1="546" y1="260" x2="546" y2="650"/>
+      <line x1="658" y1="260" x2="658" y2="650"/>
+      <line x1="770" y1="260" x2="770" y2="650"/>
+      <line x1="882" y1="260" x2="882" y2="650"/>
+      <line x1="210" y1="338" x2="990" y2="338"/>
+      <line x1="210" y1="416" x2="990" y2="416"/>
+      <line x1="210" y1="494" x2="990" y2="494"/>
+      <line x1="210" y1="572" x2="990" y2="572"/>
+      <line x1="210" y1="650" x2="990" y2="650"/>
+    </g>
+
+    <!-- events -->
+    <rect x="338" y="360" rx="14" width="180" height="46" fill="#eaf3ff" stroke="#d9eeff"/>
+    <rect x="352" y="377" rx="8" width="120" height="12" fill="#0f172a" opacity=".08"/>
+
+    <rect x="562" y="438" rx="14" width="210" height="46" fill="#2a7de1"/>
+    <rect x="578" y="455" rx="8" width="150" height="12" fill="#ffffff" opacity=".9"/>
+
+    <rect x="786" y="516" rx="14" width="170" height="46" fill="#eaf3ff" stroke="#d9eeff"/>
+    <rect x="800" y="533" rx="8" width="120" height="12" fill="#0f172a" opacity=".08"/>
+  </g>
+</svg>

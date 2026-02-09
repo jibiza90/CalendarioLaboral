@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendario Laboral - Landing</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Inter", system-ui, -apple-system, sans-serif; color: #0f172a; background: #f8fbff; }
+    .section { position: relative; width: 100%; min-height: 480px; display: flex; align-items: center; justify-content: center; padding: 48px 16px; overflow: hidden; }
+    .bg { position: absolute; inset: 0; z-index: 0; object-fit: cover; width: 100%; height: 100%; }
+    .content { position: relative; z-index: 1; max-width: 1100px; width: 100%; padding: 32px 28px; text-align: center; }
+    h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 16px; }
+    p.lead { font-size: 1.05rem; color: #334155; max-width: 780px; margin: 0 auto 20px; }
+    .buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn { padding: 14px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; font-size: 1rem; }
+    .primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; }
+    .secondary { background: rgba(255,255,255,0.9); color: #1d4ed8; border: 2px solid #3b82f6; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 20px; }
+    .card { background: rgba(255,255,255,0.9); padding: 18px; border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: left; }
+    .chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px; }
+    .chip { padding: 10px 16px; border-radius: 999px; background: rgba(255,255,255,0.92); border: 1px solid #e2e8f0; font-weight: 600; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 12px; margin-top: 20px; }
+    .stat { background: rgba(255,255,255,0.94); padding: 16px; border-radius: 12px; border: 1px solid #dbeafe; }
+    .stat .num { font-size: 2rem; font-weight: 800; color: #1e40af; }
+    .feature-list { list-style: none; max-width: 520px; margin: 0 auto; text-align: left; }
+    .feature-list li { padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #334155; }
+    @media (max-width: 640px) {
+      .section { padding: 32px 12px; }
+      .content { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Hero -->
+  <section class="section">
+    <img src="/hero.png" alt="Hero" class="bg" />
+    <div class="content">
+      <h1>Intercambia Turnos de Trabajo al Instante</h1>
+      <p class="lead">La plataforma que conecta trabajadores para comprar y vender turnos laborales de forma rápida, segura y eficiente. Gestiona tu tiempo con total flexibilidad.</p>
+      <div class="buttons">
+        <button class="btn primary">Comenzar ahora</button>
+        <button class="btn secondary">Ver cómo funciona</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <img src="/2_Como-Funciona.png" alt="Cómo funciona" class="bg" />
+    <div class="content">
+      <h1>¿Cómo funciona?</h1>
+      <p class="lead">Publica, negocia y cierra tus intercambios de turnos en minutos.</p>
+      <div class="grid">
+        <div class="card"><strong>1. Publica tu turno</strong><br/>Indica el día, hora y condiciones para intercambiar.</div>
+        <div class="card"><strong>2. Encuentra opciones</strong><br/>Recibe propuestas de compañeros y revisa ofertas cercanas.</div>
+        <div class="card"><strong>3. Intercambia seguro</strong><br/>Confirma el acuerdo y deja todo registrado automáticamente.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <img src="/3_Beneficios-Principales.png" alt="Beneficios" class="bg" />
+    <div class="content">
+      <h1>Beneficios principales</h1>
+      <div class="grid">
+        <div class="card"><strong>⚡️ Intercambios rápidos</strong><br/>Publica y recibe propuestas en cuestión de minutos.</div>
+        <div class="card"><strong>🛡️ Seguro y confiable</strong><br/>Perfiles verificados y registros claros de cada intercambio.</div>
+        <div class="card"><strong>💬 Chat integrado</strong><br/>Negocia condiciones fácilmente con mensajes directos.</div>
+        <div class="card"><strong>📱 Multiplataforma</strong><br/>Accede desde móvil u ordenador sin perder detalle.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <img src="/4_Para-Todo-Tipo-de-Sectores.png" alt="Sectores" class="bg" />
+    <div class="content">
+      <h1>Sectores</h1>
+      <p class="lead">Funciona para equipos con turnos rotativos de cualquier sector.</p>
+      <div class="chips">
+        <span class="chip">Sanidad</span><span class="chip">Comercio</span><span class="chip">Hostelería</span><span class="chip">Logística</span><span class="chip">Manufactura</span><span class="chip">Servicios</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <img src="/5_Panel-de-Control-Intuitivo.png" alt="Panel" class="bg" />
+    <div class="content">
+      <h1>Panel de control intuitivo</h1>
+      <p class="lead">Monitorea ofertas, negocia y confirma intercambios en un solo lugar.</p>
+      <div class="stats">
+        <div class="stat"><div class="num">128</div><div>Turnos publicados</div></div>
+        <div class="stat"><div class="num">45</div><div>Intercambios cerrados</div></div>
+        <div class="stat"><div class="num">72</div><div>Chats activos</div></div>
+        <div class="stat"><div class="num">9</div><div>Equipos conectados</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <img src="/6_Calendario-Mensual-Interactivo.png" alt="Calendario" class="bg" />
+    <div class="content">
+      <h1>Calendario mensual interactivo</h1>
+      <ul class="feature-list">
+        <li>Visualiza turnos y ofertas en un vistazo.</li>
+        <li>Filtra por departamentos, sedes o equipos.</li>
+        <li>Publica y edita ofertas directamente desde el calendario.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <img src="/7_Seguridad-y-Confianza.png" alt="Seguridad" class="bg" />
+    <div class="content">
+      <h1>Seguridad y confianza</h1>
+      <div class="grid">
+        <div class="card">Verificación por empresa</div>
+        <div class="card">Perfiles y equipos validados</div>
+        <div class="card">Chat privado entre compañeros</div>
+        <div class="card">Historial de intercambios</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <img src="/8_Testimonios-de-Usuarios.png" alt="Testimonios" class="bg" />
+    <div class="content">
+      <h1>Lo que dicen nuestros usuarios</h1>
+      <div class="grid">
+        <div class="card">“He conseguido intercambiar todos los turnos que necesitaba. ¡Increíble!” — María, Enfermera</div>
+        <div class="card">“La app es muy intuitiva y el chat facilita mucho la coordinación.” — Carlos, Camarero</div>
+        <div class="card">“Por fin puedo conciliar mi vida familiar con el trabajo en turnos.” — Ana, Dependienta</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <img src="/9_Planes-y-Precios.png" alt="Planes" class="bg" />
+    <div class="content">
+      <h1>Planes y precios</h1>
+      <div class="grid">
+        <div class="card"><strong>Básico</strong><br/>Gratis<br/>Publica y acepta intercambios · Chat entre compañeros · Gestión básica</div>
+        <div class="card"><strong>Premium</strong><br/>9,99€ / mes<br/>Prioridad en ofertas · Alertas en tiempo real · Reportes avanzados</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <img src="/10_Comienza-Hoy-Mismo.png" alt="CTA" class="bg" />
+    <div class="content">
+      <h1>¿Listo para empezar?</h1>
+      <p class="lead">Crea tu cuenta gratis y comienza a intercambiar turnos hoy.</p>
+      <div class="buttons">
+        <button class="btn primary">Crear cuenta gratis</button>
+        <button class="btn secondary">Hablar con ventas</button>
+      </div>
+      <p class="lead" style="font-size:0.95rem; color:#475569; margin-top:12px;">Sin tarjetas ni compromisos.</p>
+    </div>
+  </section>
+</body>
+</html>

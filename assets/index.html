@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TurnSwap - Intercambio de Turnos de Trabajo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header y Navegación */
+        header {
+            background-color: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .logo i {
+            color: var(--secondary-color);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark-color);
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border-radius: 30px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .btn-login {
+            background-color: transparent;
+            border: 2px solid var(--secondary-color);
+            color: var(--secondary-color);
+        }
+        
+        .btn-login:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .btn-register {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-register:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .hero-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
+        }
+        
+        .hero-text {
+            flex: 1;
+        }
+        
+        .hero-text h1 {
+            font-size: 3.2rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .hero-text p {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 30px;
+            max-width: 600px;
+        }
+        
+        .hero-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .hero-image img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+        
+        /* Cómo funciona */
+        .how-it-works {
+            padding: 80px 0;
+            background-color: white;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 50px;
+        }
+        
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .step {
+            flex: 1;
+            min-width: 250px;
+            max-width: 300px;
+            text-align: center;
+            padding: 30px 20px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            box-shadow: var(--shadow);
+        }
+        
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            background-color: var(--secondary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.8rem;
+        }
+        
+        .step h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        /* Formularios de autenticación */
+        .auth-forms {
+            padding: 80px 0;
+            background-color: #f8f9fa;
+        }
+        
+        .form-container {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            flex-wrap: wrap;
+        }
+        
+        .auth-form {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .auth-form h2 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+        
+        .btn-submit {
+            width: 100%;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 14px;
+            margin-top: 10px;
+        }
+        
+        .btn-submit:hover {
+            background-color: #2980b9;
+        }
+        
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        .form-footer a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 60px 0 30px;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-column {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .footer-column h3 {
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-column ul li a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-column ul li a:hover {
+            color: white;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .hero-text h1 {
+                font-size: 2.8rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .hero-text h1 {
+                font-size: 2.2rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .auth-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .auth-form {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header y Navegación -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>TurnSwap</span>
+                </a>
+                
+                <div class="nav-links">
+                    <a href="#how-it-works">Cómo funciona</a>
+                    <a href="#benefits">Beneficios</a>
+                    <a href="#contact">Contacto</a>
+                </div>
+                
+                <div class="auth-buttons">
+                    <button class="btn btn-login" id="loginBtn">Iniciar Sesión</button>
+                    <button class="btn btn-register" id="registerBtn">Registrarse</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Intercambia tus turnos de trabajo fácilmente</h1>
+                    <p>¿No puedes trabajar un sábado? Publica tu turno y ofrece una compensación para que alguien lo cubra. Encuentra turnos disponibles y gana dinero extra cubriendo los turnos de otros.</p>
+                    <div class="auth-buttons">
+                        <button class="btn btn-register" id="heroRegisterBtn">Comienza ahora</button>
+                        <button class="btn btn-login" id="heroLoginBtn">Inicia sesión</button>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Intercambio de turnos de trabajo">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cómo funciona -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2 class="section-title">¿Cómo funciona TurnSwap?</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                    <h3>Publica tu turno</h3>
+                    <p>Si no puedes trabajar un día, publica tu turno en la plataforma. Puedes ofrecer una compensación económica para motivar a otros.</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Encuentra turnos</h3>
+                    <p>Busca entre los turnos disponibles que otros han publicado. Filtra por fecha, ubicación o compensación ofrecida.</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3>Intercambia</h3>
+                    <p>Coordina el intercambio directamente con la otra persona. La plataforma te ayuda a gestionar el proceso de forma segura.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Formularios de autenticación -->
+    <section class="auth-forms" id="auth-forms">
+        <div class="container">
+            <h2 class="section-title">Únete a la comunidad</h2>
+            <div class="form-container">
+                <!-- Formulario de Registro -->
+                <div class="auth-form" id="registerForm">
+                    <h2>Crear una cuenta</h2>
+                    <form id="registrationForm">
+                        <div class="form-group">
+                            <label for="regName">Nombre completo</label>
+                            <input type="text" id="regName" placeholder="Tu nombre completo" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regEmail">Correo electrónico</label>
+                            <input type="email" id="regEmail" placeholder="tu@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regPassword">Contraseña</label>
+                            <input type="password" id="regPassword" placeholder="Crea una contraseña segura" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regConfirmPassword">Confirmar contraseña</label>
+                            <input type="password" id="regConfirmPassword" placeholder="Repite tu contraseña" required>
+                        </div>
+                        <button type="submit" class="btn btn-submit">Registrarse</button>
+                    </form>
+                    <div class="form-footer">
+                        <p>¿Ya tienes una cuenta? <a href="#" id="switchToLogin">Inicia sesión</a></p>
+                    </div>
+                </div>
+                
+                <!-- Formulario de Inicio de Sesión -->
+                <div class="auth-form" id="loginForm" style="display: none;">
+                    <h2>Iniciar sesión</h2>
+                    <form id="loginFormElement">
+                        <div class="form-group">
+                            <label for="loginEmail">Correo electrónico</label>
+                            <input type="email" id="loginEmail" placeholder="tu@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Contraseña</label>
+                            <input type="password" id="loginPassword" placeholder="Tu contraseña" required>
+                        </div>
+                        <div class="form-group" style="text-align: right;">
+                            <a href="#" style="font-size: 0.9rem;">¿Olvidaste tu contraseña?</a>
+                        </div>
+                        <button type="submit" class="btn btn-submit">Iniciar sesión</button>
+                    </form>
+                    <div class="form-footer">
+                        <p>¿No tienes una cuenta? <a href="#" id="switchToRegister">Regístrate</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>TurnSwap</h3>
+                    <p>La plataforma líder para intercambio de turnos de trabajo. Conectamos a trabajadores para facilitar la gestión de horarios.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Enlaces rápidos</h3>
+                    <ul>
+                        <li><a href="#how-it-works">Cómo funciona</a></li>
+                        <li><a href="#auth-forms">Registrarse</a></li>
+                        <li><a href="#">Buscar turnos</a></li>
+                        <li><a href="#">Publicar turno</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contacto</h3>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> info@turnswap.com</li>
+                        <li><i class="fas fa-phone"></i> +34 912 345 678</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Madrid, España</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 TurnSwap. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Funcionalidad para alternar entre formularios de registro e inicio de sesión
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerForm = document.getElementById('registerForm');
+            const loginForm = document.getElementById('loginForm');
+            const switchToLogin = document.getElementById('switchToLogin');
+            const switchToRegister = document.getElementById('switchToRegister');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const heroLoginBtn = document.getElementById('heroLoginBtn');
+            const heroRegisterBtn = document.getElementById('heroRegisterBtn');
+            
+            // Función para mostrar formulario de inicio de sesión
+            function showLoginForm() {
+                registerForm.style.display = 'none';
+                loginForm.style.display = 'block';
+                // Desplazar hacia los formularios
+                document.getElementById('auth-forms').scrollIntoView({behavior: 'smooth'});
+            }
+            
+            // Función para mostrar formulario de registro
+            function showRegisterForm() {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                // Desplazar hacia los formularios
+                document.getElementById('auth-forms').scrollIntoView({behavior: 'smooth'});
+            }
+            
+            // Event listeners para los botones de cambio
+            switchToLogin.addEventListener('click', function(e) {
+                e.preventDefault();
+                showLoginForm();
+            });
+            
+            switchToRegister.addEventListener('click', function(e) {
+                e.preventDefault();
+                showRegisterForm();
+            });
+            
+            loginBtn.addEventListener('click', showLoginForm);
+            registerBtn.addEventListener('click', showRegisterForm);
+            heroLoginBtn.addEventListener('click', showLoginForm);
+            heroRegisterBtn.addEventListener('click', showRegisterForm);
+            
+            // Manejo del formulario de registro
+            document.getElementById('registrationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('regName').value;
+                const email = document.getElementById('regEmail').value;
+                const password = document.getElementById('regPassword').value;
+                const confirmPassword = document.getElementById('regConfirmPassword').value;
+                
+                // Validación simple
+                if (password !== confirmPassword) {
+                    alert('Las contraseñas no coinciden. Por favor, inténtalo de nuevo.');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    alert('La contraseña debe tener al menos 6 caracteres.');
+                    return;
+                }
+                
+                // Aquí normalmente enviarías los datos al servidor
+                // Por ahora, solo mostramos un mensaje de éxito
+                alert(`¡Cuenta creada con éxito!\nBienvenido/a ${name}. Ahora puedes comenzar a usar TurnSwap.`);
+                
+                // Resetear el formulario
+                this.reset();
+            });
+            
+            // Manejo del formulario de inicio de sesión
+            document.getElementById('loginFormElement').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                // Validación simple (en una app real, esto se haría en el servidor)
+                if (!email || !password) {
+                    alert('Por favor, completa todos los campos.');
+                    return;
+                }
+                
+                // Aquí normalmente enviarías los datos al servidor para autenticación
+                // Por ahora, solo mostramos un mensaje de éxito
+                alert(`Inicio de sesión exitoso.\nBienvenido/a de nuevo a TurnSwap.`);
+                
+                // Resetear el formulario
+                this.reset();
+            });
+        });
+    </script>
+</body>
+</html>

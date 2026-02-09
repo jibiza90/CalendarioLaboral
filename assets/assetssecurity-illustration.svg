@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <defs>
+    <linearGradient id="pri" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#8fd3ff"/>
+      <stop offset="1" stop-color="#2a7de1"/>
+    </linearGradient>
+    <filter id="s" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#020617" flood-opacity=".16"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="900" fill="#ffffff"/>
+  <circle cx="300" cy="260" r="240" fill="#eaf3ff"/>
+  <circle cx="930" cy="250" r="260" fill="#f1eaff"/>
+  <circle cx="780" cy="760" r="240" fill="#eaf3ff"/>
+
+  <g filter="url(#s)">
+    <rect x="250" y="180" rx="28" width="700" height="540" fill="#ffffff" stroke="#e2e8f0"/>
+  </g>
+
+  <!-- shield -->
+  <path d="M600 260
+           C520 300 440 300 360 260
+           V420
+           C360 560 470 640 600 700
+           C730 640 840 560 840 420
+           V260
+           C760 300 680 300 600 260Z"
+        fill="url(#pri)" opacity=".95"/>
+
+  <!-- check -->
+  <path d="M520 470 L585 535 L700 405"
+        fill="none" stroke="#ffffff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" opacity=".95"/>
+
+  <!-- text blocks -->
+  <rect x="310" y="210" rx="12" width="260" height="18" fill="#0f172a" opacity=".08"/>
+  <rect x="310" y="240" rx="12" width="340" height="14" fill="#0f172a" opacity=".06"/>
+  <rect x="310" y="760" rx="999" width="240" height="44" fill="#eaf3ff" stroke="#d9eeff"/>
+  <rect x="570" y="760" rx="999" width="280" height="44" fill="#2a7de1"/>
+</svg>

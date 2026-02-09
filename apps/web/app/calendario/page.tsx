@@ -133,27 +133,22 @@ export default function CalendarioPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
           >
-            <div>
-              <h1 className="text-3xl font-bold text-[var(--color-text-primary)] mb-2">
-                {t("calendar.title")}
-              </h1>
-              <p className="text-[var(--color-text-secondary)]">
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">
                 {activeCompany
                   ? t("calendar.subtitle.company", { company: activeCompany.name })
-                  : t("calendar.subtitle.noCompany")}
-              </p>
+                  : t("calendar.title")}
+              </h1>
             </div>
             {activeCompany && (
-              <Card variant="elevated" padding="md" className="bg-gradient-to-br from-purple-500/10 to-cyan-500/10 border border-[var(--color-brand-primary)]/20">
-                <div className="text-center">
-                  <div className="text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                    Código de invitación
-                  </div>
-                  <Badge variant="primary" size="lg" className="font-mono text-base">
-                    {activeCompany.inviteCode}
-                  </Badge>
+              <div className="flex items-center gap-3 bg-gradient-to-br from-purple-500/10 to-cyan-500/10 px-4 py-2.5 rounded-xl border border-[var(--color-brand-primary)]/20">
+                <div className="text-sm font-medium text-[var(--color-text-secondary)]">
+                  Código de invitación
                 </div>
-              </Card>
+                <Badge variant="primary" size="lg" className="font-mono text-base">
+                  {activeCompany.inviteCode}
+                </Badge>
+              </div>
             )}
           </motion.div>
 
