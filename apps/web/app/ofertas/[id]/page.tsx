@@ -302,12 +302,54 @@ export default function OfferDetailPage() {
                     {offer.type}
                   </span>
                 </div>
+                <div className="meta-item">
+                  <span className="meta-label">Tipo de oferta</span>
+                  <span className="meta-value">
+                    {offer.exchangeType === "simple" && "💰 Simple"}
+                    {offer.exchangeType === "exchange" && "🔄 Intercambio"}
+                    {offer.exchangeType === "hybrid" && "💰🔄 Híbrido"}
+                  </span>
+                </div>
               </div>
 
               <div className="offer-description">
                 <h3>{t("offer.description.title")}</h3>
                 <p>{offer.description}</p>
               </div>
+
+              {/* Offered Dates for Exchange */}
+              {offer.offeredDates && offer.offeredDates.length > 0 && (
+                <div className="offered-dates-section">
+                  <h3>Días libres ofrecidos</h3>
+                  <div style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "8px",
+                    marginTop: "12px"
+                  }}>
+                    {offer.offeredDates.map(dateStr => (
+                      <span
+                        key={dateStr}
+                        style={{
+                          display: "inline-flex",
+                          padding: "6px 14px",
+                          background: "#e0f2fe",
+                          color: "#0369a1",
+                          borderRadius: "16px",
+                          fontSize: "14px",
+                          fontWeight: 500
+                        }}
+                      >
+                        {new Date(dateStr + "T00:00:00").toLocaleDateString(locale, {
+                          weekday: "short",
+                          day: "numeric",
+                          month: "short"
+                        })}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Owner Info */}
               <div className="owner-info">

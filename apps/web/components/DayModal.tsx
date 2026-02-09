@@ -47,6 +47,8 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
     amount?: string;
     hideName: boolean;
     departmentId?: string;
+    exchangeType: "simple" | "exchange" | "hybrid";
+    offeredDates?: string[];
   }) => {
     if (!activeCompany || !user) return;
     const dept = companyDepts.find((d) => d.id === data.departmentId);
@@ -65,10 +67,10 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
       status: "Publicado",
       ownerId: user.id,
       isPremium: user.subscription !== "free",
-      exchangeType: "simple",
-      offeredDates: [],
+      exchangeType: data.exchangeType,
+      offeredDates: data.offeredDates || [],
     });
-    
+
     setShowForm(false);
   };
 
@@ -139,6 +141,11 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
                         <span className={`badge ${getBadgeClass(offer.type, offer.isPremium)}`}>
                           {offer.type}
                         </span>
+                        <span className="badge badge-purple">
+                          {offer.exchangeType === "simple" && "💰 Simple"}
+                          {offer.exchangeType === "exchange" && "🔄 Intercambio"}
+                          {offer.exchangeType === "hybrid" && "💰🔄 Híbrido"}
+                        </span>
                       </div>
                       {offer.hideName && (
                         <span style={{ fontSize: "12px", color: "#6b7280" }}>
@@ -156,6 +163,31 @@ export function DayModal({ date, offers, onClose }: DayModalProps) {
                         <span className="offer-amount">{offer.amount}</span>
                       )}
                     </div>
+                    {offer.offeredDates && offer.offeredDates.length > 0 && (
+                      <div style={{ marginTop: "8px", fontSize: "12px", color: "#6b7280" }}>
+                        <span>Ofrece: </span>
+                        {offer.offeredDates.slice(0, 2).map(dateStr => (
+                          <span key={dateStr} style={{
+                            display: "inline-block",
+                            padding: "2px 6px",
+                            background: "#e0f2fe",
+                            color: "#0369a1",
+                            borderRadius: "8px",
+                            fontSize: "11px",
+                            fontWeight: 500,
+                            marginRight: "4px"
+                          }}>
+                            {new Date(dateStr + "T00:00:00").toLocaleDateString(locale, {
+                              day: "numeric",
+                              month: "short"
+                            })}
+                          </span>
+                        ))}
+                        {offer.offeredDates.length > 2 && (
+                          <span>+{offer.offeredDates.length - 2} más</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
