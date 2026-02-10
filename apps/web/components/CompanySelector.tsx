@@ -6,8 +6,58 @@ import { useApp } from "../contexts/AppContext";
 import { useI18n } from "../contexts/I18nContext";
 
 const provinces = [
-  "Barcelona", "Madrid", "Valencia", "Sevilla", "Bizkaia", 
-  "Zaragoza", "Málaga", "Murcia"
+  "A Coruña",
+  "Albacete",
+  "Alicante",
+  "Almería",
+  "Araba/Álava",
+  "Asturias",
+  "Ávila",
+  "Badajoz",
+  "Barcelona",
+  "Bizkaia",
+  "Burgos",
+  "Cáceres",
+  "Cádiz",
+  "Cantabria",
+  "Castellón",
+  "Ceuta",
+  "Ciudad Real",
+  "Córdoba",
+  "Cuenca",
+  "Girona",
+  "Granada",
+  "Guadalajara",
+  "Gipuzkoa",
+  "Huelva",
+  "Huesca",
+  "Illes Balears",
+  "Jaén",
+  "La Rioja",
+  "Las Palmas",
+  "León",
+  "Lleida",
+  "Lugo",
+  "Madrid",
+  "Málaga",
+  "Melilla",
+  "Murcia",
+  "Navarra",
+  "Ourense",
+  "Palencia",
+  "Pontevedra",
+  "Salamanca",
+  "Santa Cruz de Tenerife",
+  "Segovia",
+  "Sevilla",
+  "Soria",
+  "Tarragona",
+  "Teruel",
+  "Toledo",
+  "Valencia",
+  "Valladolid",
+  "Zamora",
+  "Zaragoza",
 ];
 
 export function CompanySelector() {
@@ -27,7 +77,7 @@ export function CompanySelector() {
         title: "Mis Empresas",
         subtitleActive: "Activa: {name}",
         subtitleSelect: "Selecciona una empresa",
-        searchPlaceholder: "Buscar empresa por nombre o código...",
+        searchPlaceholder: "Buscar por nombre, provincia o código...",
         join: "Unirse",
         create: "Crear",
         active: "Activa",
@@ -57,7 +107,7 @@ export function CompanySelector() {
         title: "Les meves empreses",
         subtitleActive: "Activa: {name}",
         subtitleSelect: "Selecciona una empresa",
-        searchPlaceholder: "Cerca empresa per nom o codi...",
+        searchPlaceholder: "Cerca per nom, província o codi...",
         join: "Unir-se",
         create: "Crear",
         active: "Activa",
@@ -87,7 +137,7 @@ export function CompanySelector() {
         title: "My Companies",
         subtitleActive: "Active: {name}",
         subtitleSelect: "Select a company",
-        searchPlaceholder: "Search company by name or code...",
+        searchPlaceholder: "Search by name, province, or code...",
         join: "Join",
         create: "Create",
         active: "Active",
@@ -117,7 +167,7 @@ export function CompanySelector() {
         title: "Mes entreprises",
         subtitleActive: "Active : {name}",
         subtitleSelect: "Sélectionne une entreprise",
-        searchPlaceholder: "Chercher par nom ou code...",
+        searchPlaceholder: "Chercher par nom, province ou code...",
         join: "Rejoindre",
         create: "Créer",
         active: "Active",
@@ -147,7 +197,7 @@ export function CompanySelector() {
         title: "Le mie aziende",
         subtitleActive: "Attiva: {name}",
         subtitleSelect: "Seleziona un'azienda",
-        searchPlaceholder: "Cerca per nome o codice...",
+        searchPlaceholder: "Cerca per nome, provincia o codice...",
         join: "Unisciti",
         create: "Crea",
         active: "Attiva",
@@ -177,7 +227,7 @@ export function CompanySelector() {
         title: "Meine Unternehmen",
         subtitleActive: "Aktiv: {name}",
         subtitleSelect: "Wähle ein Unternehmen",
-        searchPlaceholder: "Suche nach Name oder Code...",
+        searchPlaceholder: "Suche nach Name, Provinz oder Code...",
         join: "Beitreten",
         create: "Erstellen",
         active: "Aktiv",
@@ -214,12 +264,14 @@ export function CompanySelector() {
   const [joinCode, setJoinCode] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Company[]>([]);
+  const [createdCompanyWasExisting, setCreatedCompanyWasExisting] = useState(false);
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCompanyName.trim()) return;
     
     const company = addCompany(newCompanyName.trim(), newCompanyProvince);
+    setCreatedCompanyWasExisting(companies.some((c) => c.id === company.id));
     setActiveCompany(company);
     setCreatedCompanyCode(company.inviteCode);
     setNewCompanyName("");
@@ -227,6 +279,12 @@ export function CompanySelector() {
 
   const [shareTarget, setShareTarget] = useState("");
   const [createdCompanyCode, setCreatedCompanyCode] = useState<string>("");
+
+  const closeCreateModal = () => {
+    setShowCreateForm(false);
+    setCreatedCompanyCode("");
+    setCreatedCompanyWasExisting(false);
+  };
 
   const handleJoin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -251,7 +309,9 @@ export function CompanySelector() {
         <div>
           <h3 className="card-title">{labels.title}</h3>
           <p className="card-subtitle">
-            {activeCompany ? labels.subtitleActive.replace("{name}", activeCompany.name) : labels.subtitleSelect}
+            {activeCompany
+              ? labels.subtitleActive.replace("{name}", `${activeCompany.name} · ${activeCompany.location}`)
+              : labels.subtitleSelect}
           </p>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
@@ -304,9 +364,9 @@ export function CompanySelector() {
                   cursor: "pointer",
                 }}
               >
-                <div style={{ fontWeight: 500 }}>{company.name}</div>
+                <div style={{ fontWeight: 500 }}>{company.name} · {company.location}</div>
                 <div style={{ fontSize: "12px", color: "#86868b" }}>
-                  {labels.code}: {company.inviteCode} · {company.location}
+                  {labels.code}: {company.inviteCode}
                 </div>
               </button>
             ))}
@@ -335,10 +395,10 @@ export function CompanySelector() {
           >
             <div>
               <div style={{ fontWeight: 600, marginBottom: "2px" }}>
-                {company.name}
+                {company.name} · {company.location}
               </div>
               <div style={{ fontSize: "12px", color: "#86868b" }}>
-                {company.inviteCode} · {company.location}
+                {company.inviteCode}
               </div>
             </div>
             {activeCompany?.id === company.id && (
@@ -393,11 +453,11 @@ export function CompanySelector() {
 
       {/* Create Modal */}
       {showCreateForm && (
-        <div className="modal-overlay" onClick={() => setShowCreateForm(false)}>
+        <div className="modal-overlay" onClick={closeCreateModal}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3 className="modal-title">{labels.createTitle}</h3>
-              <button className="btn btn-ghost btn-icon" onClick={() => setShowCreateForm(false)}>
+              <button className="btn btn-ghost btn-icon" onClick={closeCreateModal}>
                 ✕
               </button>
             </div>
@@ -429,7 +489,9 @@ export function CompanySelector() {
 
                 {createdCompanyCode && (
                   <div style={{ padding: "12px", background: "#f5f5f7", borderRadius: "10px", display: "grid", gap: "8px" }}>
-                    <div style={{ fontWeight: 700 }}>{labels.generated}</div>
+                    <div style={{ fontWeight: 700 }}>
+                      {createdCompanyWasExisting ? "Esta empresa ya existia" : labels.generated}
+                    </div>
                     <div style={{ fontFamily: "monospace", fontSize: "18px", letterSpacing: "0.1em" }}>{createdCompanyCode}</div>
                     <div style={{ display: "flex", gap: "8px" }}>
                       <button className="btn btn-outline" type="button" onClick={() => navigator.clipboard?.writeText(createdCompanyCode)}>
@@ -437,8 +499,7 @@ export function CompanySelector() {
                       </button>
                       <button className="btn btn-secondary" type="button" onClick={() => {
                         alert(labels.shareAlert(createdCompanyCode));
-                        setCreatedCompanyCode("");
-                        setShowCreateForm(false);
+                        closeCreateModal();
                       }}>
                         {labels.shareClose}
                       </button>
@@ -447,7 +508,7 @@ export function CompanySelector() {
                 )}
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-ghost" onClick={() => setShowCreateForm(false)}>
+                <button type="button" className="btn btn-ghost" onClick={closeCreateModal}>
                   {labels.createCancel}
                 </button>
                 <button type="submit" className="btn btn-primary">

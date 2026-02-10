@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import type { Department, OfferExchangeType } from "../types";
 import { useI18n } from "../contexts/I18nContext";
 import { useApp } from "../contexts/AppContext";
+import { OfferedDatesPicker } from "./OfferedDatesPicker";
 
-interface OfferFormProps {
+type OfferFormProps = {
   departments: Department[];
   initialDate: string;
   onSubmit: (data: {
@@ -18,7 +19,7 @@ interface OfferFormProps {
     offeredDates?: string[];
   }) => void;
   onCancel: () => void;
-}
+};
 
 export function OfferForm({ departments, initialDate, onSubmit, onCancel }: OfferFormProps) {
   const [date, setDate] = useState(initialDate);
@@ -31,13 +32,14 @@ export function OfferForm({ departments, initialDate, onSubmit, onCancel }: Offe
   const [showMatches, setShowMatches] = useState(false);
   const [error, setError] = useState("");
   const { t } = useI18n();
-  const { findMatches, user } = useApp();
+  const { findMatches } = useApp();
 
-  const matches = showMatches && (exchangeType === "exchange" || exchangeType === "hybrid")
-    ? findMatches(date, offeredDates)
-    : [];
+  const matches =
+    showMatches && (exchangeType === "exchange" || exchangeType === "hybrid")
+      ? findMatches(date, offeredDates)
+      : [];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!description.trim()) {
       setError(t("offer.form.error.desc"));
@@ -49,13 +51,14 @@ export function OfferForm({ departments, initialDate, onSubmit, onCancel }: Offe
     }
     // Validate exchange type requirements
     if (exchangeType === "exchange" && offeredDates.length === 0) {
-      setError("Debes seleccionar al menos un día libre que ofrecer para un intercambio");
+      setError("Debes seleccionar al menos un dia libre que ofrecer para un intercambio");
       return;
     }
     if (exchangeType === "hybrid" && offeredDates.length === 0 && !amount.trim()) {
-      setError("Para un intercambio híbrido, debes ofrecer dinero o días libres (o ambos)");
+      setError("Para un intercambio hibrido, debes ofrecer dinero o dias libres (o ambos)");
       return;
     }
+
     setError("");
     onSubmit({
       date,
@@ -68,28 +71,22 @@ export function OfferForm({ departments, initialDate, onSubmit, onCancel }: Offe
     });
   };
 
-  const handleAddOfferedDate = (dateStr: string) => {
-    if (!offeredDates.includes(dateStr)) {
-      setOfferedDates([...offeredDates, dateStr]);
-    }
-  };
-
-  const handleRemoveOfferedDate = (dateStr: string) => {
-    setOfferedDates(offeredDates.filter(d => d !== dateStr));
-  };
-
   return (
     <form onSubmit={handleSubmit}>
       <div className="form-group">
         <label className="form-label">{t("offer.form.date")}</label>
-        <input type="date" className="form-input" value={date} onChange={e => setDate(e.target.value)} />
+        <input type="date" className="form-input" value={date} onChange={(e) => setDate(e.target.value)} />
       </div>
 
       <div className="form-group">
         <label className="form-label">{t("offer.form.department")}</label>
-        <select className="form-select" value={deptId} onChange={e => setDeptId(e.target.value)}>
+        <select className="form-select" value={deptId} onChange={(e) => setDeptId(e.target.value)}>
           <option value="">{t("offer.department.general")}</option>
-          {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+          {departments.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.name}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -105,7 +102,7 @@ export function OfferForm({ departments, initialDate, onSubmit, onCancel }: Offe
               checked={exchangeType === "simple"}
               onChange={() => setExchangeType("simple")}
             />
-            <span style={{ fontWeight: 500 }}>💰 Simple</span>
+            <span style={{ fontWeight: 500 }}>Simple</span>
             <span style={{ fontSize: "13px", color: "#6b7280" }}>Solo ofreces dinero o un favor</span>
           </label>
           <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
@@ -116,8 +113,8 @@ export function OfferForm({ departments, initialDate, onSubmit, onCancel }: Offe
               checked={exchangeType === "exchange"}
               onChange={() => setExchangeType("exchange")}
             />
-            <span style={{ fontWeight: 500 }}>🔄 Intercambio</span>
-            <span style={{ fontSize: "13px", color: "#6b7280" }}>Cambias uno de tus días libres</span>
+            <span style={{ fontWeight: 500 }}>Intercambio</span>
+            <span style={{ fontSize: "13px", color: "#6b7280" }}>Cambias uno de tus dias libres</span>
           </label>
           <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
             <input
@@ -127,8 +124,8 @@ export function OfferForm({ departments, initialDate, onSubmit, onCancel }: Offe
               checked={exchangeType === "hybrid"}
               onChange={() => setExchangeType("hybrid")}
             />
-            <span style={{ fontWeight: 500 }}>💰🔄 Híbrido</span>
-            <span style={{ fontSize: "13px", color: "#6b7280" }}>Combinas dinero + días libres</span>
+            <span style={{ fontWeight: 500 }}>Hibrido</span>
+            <span style={{ fontSize: "13px", color: "#6b7280" }}>Combinas dinero + dias libres</span>
           </label>
         </div>
       </div>
@@ -140,7 +137,7 @@ export function OfferForm({ departments, initialDate, onSubmit, onCancel }: Offe
           rows={3}
           placeholder={t("offer.form.placeholder")}
           value={description}
-          onChange={e => setDescription(e.target.value)}
+          onChange={(e) => setDescription(e.target.value)}
         />
       </div>
 
@@ -153,7 +150,7 @@ export function OfferForm({ departments, initialDate, onSubmit, onCancel }: Offe
             className="form-input"
             placeholder={t("offer.form.compensation.placeholder")}
             value={amount}
-            onChange={e => setAmount(e.target.value)}
+            onChange={(e) => setAmount(e.target.value)}
           />
         </div>
       )}
@@ -161,70 +158,16 @@ export function OfferForm({ departments, initialDate, onSubmit, onCancel }: Offe
       {/* Offered Dates - show for exchange and hybrid */}
       {(exchangeType === "exchange" || exchangeType === "hybrid") && (
         <div className="form-group">
-          <label className="form-label">Días libres que ofreces</label>
-          <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
-            <input
-              type="date"
-              className="form-input"
-              style={{ flex: 1 }}
-              onChange={e => {
-                if (e.target.value) {
-                  handleAddOfferedDate(e.target.value);
-                  e.target.value = "";
-                }
-              }}
-            />
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => setShowMatches(!showMatches)}
-            >
-              {showMatches ? "Ocultar matches" : "🔍 Ver matches"}
+          <div className="offered-dates-header">
+            <label className="form-label">
+              {exchangeType === "exchange" ? "Dias libres que ofreces" : "Dias libres que ofreces (opcional)"}
+            </label>
+            <button type="button" className="btn btn-secondary btn-sm" onClick={() => setShowMatches(!showMatches)}>
+              {showMatches ? "Ocultar matches" : "Ver matches"}
             </button>
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-            {offeredDates.map(dateStr => (
-              <span
-                key={dateStr}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  padding: "4px 10px",
-                  background: "#e0f2fe",
-                  color: "#0369a1",
-                  borderRadius: "16px",
-                  fontSize: "13px",
-                  fontWeight: 500
-                }}
-              >
-                {new Date(dateStr + "T00:00:00").toLocaleDateString("es-ES", {
-                  day: "numeric",
-                  month: "short"
-                })}
-                <button
-                  type="button"
-                  onClick={() => handleRemoveOfferedDate(dateStr)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: "0",
-                    display: "flex",
-                    alignItems: "center",
-                    color: "#0369a1"
-                  }}
-                >
-                  ✕
-                </button>
-              </span>
-            ))}
-          </div>
-          {offeredDates.length === 0 && (
-            <p style={{ fontSize: "13px", color: "#6b7280", marginTop: "4px" }}>
-              Añade los días libres que estás dispuesto a cambiar
-            </p>
-          )}
+          <div className="form-help">Selecciona en el calendario los dias libres que puedes ofrecer a cambio.</div>
+          <OfferedDatesPicker key={date} startDate={date} blockedDate={date} value={offeredDates} onChange={setOfferedDates} />
         </div>
       )}
 
@@ -232,14 +175,16 @@ export function OfferForm({ departments, initialDate, onSubmit, onCancel }: Offe
       {showMatches && matches.length > 0 && (
         <div className="form-group">
           <label className="form-label">Usuarios compatibles ({matches.length})</label>
-          <div style={{
-            maxHeight: "200px",
-            overflowY: "auto",
-            border: "1px solid #e5e7eb",
-            borderRadius: "8px",
-            padding: "8px"
-          }}>
-            {matches.slice(0, 10).map(match => (
+          <div
+            style={{
+              maxHeight: "200px",
+              overflowY: "auto",
+              border: "1px solid #e5e7eb",
+              borderRadius: "8px",
+              padding: "8px",
+            }}
+          >
+            {matches.slice(0, 10).map((match) => (
               <div
                 key={match.userId}
                 style={{
@@ -249,27 +194,31 @@ export function OfferForm({ departments, initialDate, onSubmit, onCancel }: Offe
                   borderRadius: "6px",
                   display: "flex",
                   justifyContent: "space-between",
-                  alignItems: "center"
+                  alignItems: "center",
                 }}
               >
                 <div>
                   <div style={{ fontWeight: 500, fontSize: "14px" }}>{match.userName}</div>
                   <div style={{ fontSize: "12px", color: "#6b7280" }}>
-                    Disponible: {match.availableDates.slice(0, 3).map(d =>
-                      new Date(d + "T00:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "short" })
-                    ).join(", ")}
-                    {match.availableDates.length > 3 && ` +${match.availableDates.length - 3} más`}
+                    Disponible:{" "}
+                    {match.availableDates
+                      .slice(0, 3)
+                      .map((d) => new Date(`${d}T00:00:00`).toLocaleDateString("es-ES", { day: "numeric", month: "short" }))
+                      .join(", ")}
+                    {match.availableDates.length > 3 && ` +${match.availableDates.length - 3} mas`}
                   </div>
                 </div>
-                <div style={{
-                  background: match.matchScore > 1 ? "#dcfce7" : "#e0f2fe",
-                  color: match.matchScore > 1 ? "#16a34a" : "#0369a1",
-                  padding: "4px 8px",
-                  borderRadius: "12px",
-                  fontSize: "12px",
-                  fontWeight: 600
-                }}>
-                  {match.matchScore > 1 ? "⭐ Match perfecto" : "✓ Compatible"}
+                <div
+                  style={{
+                    background: match.matchScore > 1 ? "#dcfce7" : "#e0f2fe",
+                    color: match.matchScore > 1 ? "#16a34a" : "#0369a1",
+                    padding: "4px 8px",
+                    borderRadius: "12px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                  }}
+                >
+                  {match.matchScore > 1 ? "Match perfecto" : "Compatible"}
                 </div>
               </div>
             ))}
@@ -278,15 +227,17 @@ export function OfferForm({ departments, initialDate, onSubmit, onCancel }: Offe
       )}
 
       {showMatches && matches.length === 0 && (exchangeType === "exchange" || exchangeType === "hybrid") && (
-        <div style={{
-          padding: "12px",
-          background: "#fef3c7",
-          color: "#92400e",
-          borderRadius: "6px",
-          marginBottom: "16px",
-          fontSize: "13px"
-        }}>
-          No se encontraron usuarios compatibles. Intenta ofrecer más días libres.
+        <div
+          style={{
+            padding: "12px",
+            background: "#fef3c7",
+            color: "#92400e",
+            borderRadius: "6px",
+            marginBottom: "16px",
+            fontSize: "13px",
+          }}
+        >
+          No se encontraron usuarios compatibles. Intenta ofrecer mas dias libres.
         </div>
       )}
 
@@ -296,15 +247,28 @@ export function OfferForm({ departments, initialDate, onSubmit, onCancel }: Offe
       </div>
 
       {error && (
-        <div style={{ padding: "12px", background: "#fee2e2", color: "#dc2626", borderRadius: "6px", marginBottom: "16px" }}>
+        <div
+          style={{
+            padding: "12px",
+            background: "#fee2e2",
+            color: "#dc2626",
+            borderRadius: "6px",
+            marginBottom: "16px",
+          }}
+        >
           {error}
         </div>
       )}
 
       <div className="modal-footer">
-        <button type="button" className="btn btn-ghost" onClick={onCancel}>{t("common.cancel")}</button>
-        <button type="submit" className="btn btn-primary">{t("offer.form.submit")}</button>
+        <button type="button" className="btn btn-ghost" onClick={onCancel}>
+          {t("common.cancel")}
+        </button>
+        <button type="submit" className="btn btn-primary">
+          {t("offer.form.submit")}
+        </button>
       </div>
     </form>
   );
 }
+

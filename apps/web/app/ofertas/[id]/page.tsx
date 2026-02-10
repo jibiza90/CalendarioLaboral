@@ -1,8 +1,10 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { useApp } from "../../../contexts/AppContext";
 import { Sidebar } from "../../../components/Sidebar";
+import { OfferedDatesPicker } from "../../../components/OfferedDatesPicker";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PrivateMessage } from "../../../types";
 import { useI18n } from "../../../contexts/I18nContext";
@@ -263,16 +265,6 @@ export default function OfferDetailPage() {
     setCounterMessage("");
   };
 
-  const handleAddCounterDate = (dateStr: string) => {
-    if (!counterDates.includes(dateStr)) {
-      setCounterDates([...counterDates, dateStr]);
-    }
-  };
-
-  const handleRemoveCounterDate = (dateStr: string) => {
-    setCounterDates(counterDates.filter(d => d !== dateStr));
-  };
-
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
@@ -310,9 +302,9 @@ export default function OfferDetailPage() {
         <div className="offer-detail-page">
           {/* Header */}
           <div className="offer-detail-header">
-            <button className="back-button" onClick={() => router.push("/calendario")}>
+            <Link className="back-button" href="/calendario">
               {t("offer.back")}
-            </button>
+            </Link>
             <div className="offer-status-badges">
               <span className={`status-badge ${offer.status.toLowerCase().replace(" ", "-")}`}>
                 {offer.status}
@@ -472,53 +464,13 @@ export default function OfferDetailPage() {
                           <label style={{ display: "block", fontSize: "13px", fontWeight: 500, marginBottom: "6px", color: "var(--color-text-secondary)" }}>
                             Días libres que ofreces (opcional)
                           </label>
-                          <input
-                            type="date"
-                            className="form-input"
-                            onChange={(e) => {
-                              if (e.target.value) {
-                                handleAddCounterDate(e.target.value);
-                                e.target.value = "";
-                              }
-                            }}
+                          <OfferedDatesPicker
+                            key={offer.date}
+                            startDate={offer.date.slice(0, 10)}
+                            blockedDate={offer.date.slice(0, 10)}
+                            value={counterDates}
+                            onChange={setCounterDates}
                           />
-                          {counterDates.length > 0 && (
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "8px" }}>
-                              {counterDates.map(dateStr => (
-                                <span
-                                  key={dateStr}
-                                  style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: "6px",
-                                    padding: "4px 10px",
-                                    background: "#e0f2fe",
-                                    color: "#0369a1",
-                                    borderRadius: "16px",
-                                    fontSize: "12px",
-                                    fontWeight: 500
-                                  }}
-                                >
-                                  {new Date(dateStr + "T00:00:00").toLocaleDateString(locale, {
-                                    day: "numeric",
-                                    month: "short"
-                                  })}
-                                  <button
-                                    onClick={() => handleRemoveCounterDate(dateStr)}
-                                    style={{
-                                      background: "none",
-                                      border: "none",
-                                      cursor: "pointer",
-                                      padding: "0",
-                                      color: "#0369a1"
-                                    }}
-                                  >
-                                    ✕
-                                  </button>
-                                </span>
-                              ))}
-                            </div>
-                          )}
                         </div>
 
                         {/* Counter Message */}

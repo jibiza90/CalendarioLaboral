@@ -120,11 +120,23 @@ const AppContext = createContext<AppState | null>(null);
 // Generate unique company code (e.g., "IBE-7843")
 function generateCompanyCode(name: string): string {
   const prefix = name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-zA-Z]/g, "")
     .slice(0, 3)
-    .toUpperCase();
+    .toUpperCase() || "COM";
   const random = Math.floor(1000 + Math.random() * 9000);
   return `${prefix}-${random}`;
+}
+
+function normalizeSearchText(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 }
 
 // Default data (vacío para obligar a alta/autenticación)
@@ -314,7 +326,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addCompany = (name: string, location: string): Company => {
-    const inviteCode = generateCompanyCode(name);
+    const normalizedName = normalizeSearchText(name);
+    const normalizedLocation = normalizeSearchText(location);
+
+    const existing = companies.find((c) => {
+      return (
+        normalizeSearchText(c.name) === normalizedName &&
+        normalizeSearchText(c.location) === normalizedLocation
+      );
+    });
+
+    if (existing) {
+      addToast({
+        type: "info",
+        message: `La empresa "${existing.name}" (${existing.location}) ya existe. Usa su código: ${existing.inviteCode}`,
+      });
+      return existing;
+    }
+
+    const existingCodes = new Set(companies.map((c) => c.inviteCode.toUpperCase()));
+    let inviteCode = generateCompanyCode(name);
+    let attempts = 0;
+    while (existingCodes.has(inviteCode.toUpperCase()) && attempts < 25) {
+      inviteCode = generateCompanyCode(name);
+      attempts += 1;
+    }
     const company: Company = {
       id: `comp-${Date.now()}`,
       name,
@@ -346,13 +382,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const searchCompanies = (query: string): Company[] => {
-    if (!query.trim()) return [];
-    const lowerQuery = query.toLowerCase();
-    return companies.filter(
-      (c) =>
-        c.name.toLowerCase().includes(lowerQuery) ||
-        c.inviteCode.toLowerCase().includes(lowerQuery)
-    );
+    const normalizedQuery = normalizeSearchText(query);
+    if (!normalizedQuery) return [];
+
+    const tokens = normalizedQuery.split(" ").filter(Boolean);
+    return companies.filter((c) => {
+      const haystack = normalizeSearchText(`${c.name} ${c.location} ${c.inviteCode}`);
+      return tokens.every((t) => haystack.includes(t));
+    });
   };
 
   const addDepartment = (department: Department) => {

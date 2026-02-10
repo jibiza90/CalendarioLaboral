@@ -3,7 +3,7 @@ export type OfferType = "Nueva" | "Alta demanda" | "Aceptación rápida";
 export type Company = {
   id: string;
   name: string;
-  location: string; // "Madrid, España"
+  location: string; // Provincia (ej: "Lleida")
   category: string; // "Restauración", "Retail", "Salud", etc.
   inviteCode: string; // "RES123456" - único código para unirse
   inviteLink: string; // "turnswap.com/join/RES123456"
